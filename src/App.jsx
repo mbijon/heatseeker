@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  levels,
+  calculateHeat,
+  generateLavaSquares as generateLavaSquaresUtil,
+  getHeatColor
+} from './gameLogic.js';
 
 const Heatseeker = () => {
-  // Level configurations
-  const levels = [
-    { size: 10, minLava: 1, maxLava: 5 },
-    { size: 10, minLava: 5, maxLava: 15 },
-    { size: 20, minLava: 20, maxLava: 40 },
-    { size: 32, minLava: 40, maxLava: 100 },
-    { size: 40, minLava: 100, maxLava: 200 },
-    { size: 50, minLava: 250, maxLava: 750 },
-    { size: 64, minLava: 400, maxLava: 800 },
-    { size: 64, minLava: 800, maxLava: 1600 },
-    { size: 100, minLava: 1600, maxLava: 2400 },
-    { size: 100, minLava: 2000, maxLava: 5000 }
-  ];
 
   // Game state
   const [currentLevel, setCurrentLevel] = useState(0);
@@ -49,33 +42,7 @@ const Heatseeker = () => {
     return 'bg-gray-400';
   };
 
-  const getHeatColor = (adjacentLavaCount) => {
-    switch (adjacentLavaCount) {
-      case 0: return 'bg-gray-300'; // Light grey
-      case 1: return 'bg-yellow-200'; // Light yellow
-      case 2: return 'bg-yellow-300'; // Yellow
-      case 3: return 'bg-yellow-400'; // Bright yellow
-      case 4: return 'bg-yellow-500'; // Light yellow-orange
-      case 5: return 'bg-orange-400'; // Deep yellow-orange
-      case 6: return 'bg-orange-500'; // Light orange-red
-      case 7: return 'bg-red-400'; // Light red
-      case 8: return 'bg-pink-400'; // Neon pink
-      default: return 'bg-white';
-    }
-  };
 
-  // Calculate adjacent lava squares from any lava set
-  const calculateHeat = (x, y, lavaSet) => {
-    let count = 0;
-    for (let dx = -1; dx <= 1; dx++) {
-      for (let dy = -1; dy <= 1; dy++) {
-        if (dx === 0 && dy === 0) continue;
-        const checkKey = `${x + dx},${y + dy}`;
-        if (lavaSet.has(checkKey)) count++;
-      }
-    }
-    return count;
-  };
 
   // Calculate adjacent lava squares using current state
   const countAdjacentLava = useCallback((x, y) => {
@@ -84,24 +51,7 @@ const Heatseeker = () => {
 
   // Generate random lava squares for current level
   const generateLavaSquares = useCallback(() => {
-    const level = levels[currentLevel];
-    const lavaCount = Math.floor(Math.random() * (level.maxLava - level.minLava + 1)) + level.minLava;
-    const newLavaSquares = new Set();
-
-    // Ensure starting position (bottom-left) and target (top-right) are safe
-    const safeSquares = new Set([`0,${level.size - 1}`, `${level.size - 1},0`]);
-
-    while (newLavaSquares.size < lavaCount) {
-      const x = Math.floor(Math.random() * level.size);
-      const y = Math.floor(Math.random() * level.size);
-      const key = `${x},${y}`;
-
-      if (!safeSquares.has(key) && !newLavaSquares.has(key)) {
-        newLavaSquares.add(key);
-      }
-    }
-
-    return newLavaSquares;
+    return generateLavaSquaresUtil(currentLevel);
   }, [currentLevel]);
 
   // Initialize level
