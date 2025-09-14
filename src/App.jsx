@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-const HeatSeekerGame = () => {
+const Heatseeker = () => {
   // Level configurations
   const levels = [
     { size: 10, minLava: 1, maxLava: 5 },
@@ -31,19 +31,19 @@ const HeatSeekerGame = () => {
     const isTarget = x === size - 1 && y === 0; // top-right
     const isVisited = visitedSquares.has(key);
     const isLava = lavaSquares.has(key);
-    
+
     // Target square (top-right)
     if (isTarget) return 'bg-green-500';
-    
+
     // Lava square (only shows black when stepped on)
     if (isLava && isVisited) return 'bg-black';
-    
+
     // Visited safe squares
     if (isVisited) {
       const heatLevel = visitedSquares.get(key);
       return getHeatColor(heatLevel);
     }
-    
+
     // Unexplored squares
     return 'bg-gray-400';
   };
@@ -86,20 +86,20 @@ const HeatSeekerGame = () => {
     const level = levels[currentLevel];
     const lavaCount = Math.floor(Math.random() * (level.maxLava - level.minLava + 1)) + level.minLava;
     const newLavaSquares = new Set();
-    
+
     // Ensure starting position (bottom-left) and target (top-right) are safe
     const safeSquares = new Set([`0,${level.size - 1}`, `${level.size - 1},0`]);
-    
+
     while (newLavaSquares.size < lavaCount) {
       const x = Math.floor(Math.random() * level.size);
       const y = Math.floor(Math.random() * level.size);
       const key = `${x},${y}`;
-      
+
       if (!safeSquares.has(key) && !newLavaSquares.has(key)) {
         newLavaSquares.add(key);
       }
     }
-    
+
     return newLavaSquares;
   }, [currentLevel]);
 
@@ -108,14 +108,14 @@ const HeatSeekerGame = () => {
     const level = levels[currentLevel];
     const startX = 0;
     const startY = level.size - 1;
-    
+
     // Generate lava squares first
     const newLavaSquares = generateLavaSquares();
     setLavaSquares(newLavaSquares);
-    
+
     // Calculate starting square heat using the same logic as movement
     const startingHeat = calculateHeat(startX, startY, newLavaSquares);
-    
+
     // Set initial state with starting square already visited
     setPlayerPos({ x: startX, y: startY });
     setVisitedSquares(new Map([[`${startX},${startY}`, startingHeat]]));
@@ -126,11 +126,11 @@ const HeatSeekerGame = () => {
   // Handle player movement
   const movePlayer = useCallback((direction) => {
     if (gameState !== 'playing') return;
-    
+
     const level = levels[currentLevel];
     let newX = playerPos.x;
     let newY = playerPos.y;
-    
+
     switch (direction) {
       case 'up':
         newY = Math.max(0, playerPos.y - 1);
@@ -145,28 +145,28 @@ const HeatSeekerGame = () => {
         newX = Math.min(level.size - 1, playerPos.x + 1);
         break;
     }
-    
+
     // Only move if position actually changed
     if (newX === playerPos.x && newY === playerPos.y) return;
-    
+
     setPlayerPos({ x: newX, y: newY });
     setMoves(m => m + 1);
-    
+
     const newKey = `${newX},${newY}`;
-    
+
     // Check if stepped on lava
     if (lavaSquares.has(newKey)) {
       setVisitedSquares(prev => new Map(prev).set(newKey, -1)); // -1 indicates lava
       setGameState('lost');
       return;
     }
-    
+
     // Check if reached target
     if (newX === level.size - 1 && newY === 0) {
       setGameState('won');
       return;
     }
-    
+
     // Calculate heat signature
     const adjacentLavaCount = countAdjacentLava(newX, newY);
     setVisitedSquares(prev => new Map(prev).set(newKey, adjacentLavaCount));
@@ -176,7 +176,7 @@ const HeatSeekerGame = () => {
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (!gameStarted) return;
-      
+
       switch (event.key) {
         case 'ArrowUp':
           event.preventDefault();
@@ -248,7 +248,7 @@ const HeatSeekerGame = () => {
             <li className="ml-4 text-red-400">Light Red = 7 nearby</li>
             <li className="ml-4 text-pink-400">Neon Pink = 8 nearby</li>
           </ul>
-          <button 
+          <button
             onClick={startGame}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
           >
@@ -275,24 +275,24 @@ const HeatSeekerGame = () => {
         </div>
       </div>
 
-      <div 
+      <div
         className="grid gap-0 border-2 border-gray-600 bg-gray-800 p-2 rounded-lg"
-        style={{ 
+        style={{
           gridTemplateColumns: `repeat(${level.size}, ${cellSize}px)`,
           width: 'fit-content'
         }}
       >
-        {Array.from({ length: level.size }, (_, y) => 
+        {Array.from({ length: level.size }, (_, y) =>
           Array.from({ length: level.size }, (_, x) => {
             const isPlayer = playerPos.x === x && playerPos.y === y;
             const squareColor = getSquareColor(x, y, level.size);
-            
+
             return (
               <div
                 key={`${x}-${y}`}
                 className={`${squareColor} ${isPlayer ? 'ring-2 ring-blue-400 ring-inset' : ''} border border-gray-700`}
-                style={{ 
-                  width: `${cellSize}px`, 
+                style={{
+                  width: `${cellSize}px`,
                   height: `${cellSize}px`,
                   minWidth: '4px',
                   minHeight: '4px'
@@ -311,7 +311,7 @@ const HeatSeekerGame = () => {
             {/* D-pad style controls */}
             <div className="grid grid-cols-3 gap-2 w-48">
               <div></div>
-              <button 
+              <button
                 onClick={() => movePlayer('up')}
                 className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition duration-150 text-xl"
                 disabled={gameState !== 'playing'}
@@ -319,8 +319,8 @@ const HeatSeekerGame = () => {
                 ↑
               </button>
               <div></div>
-              
-              <button 
+
+              <button
                 onClick={() => movePlayer('left')}
                 className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition duration-150 text-xl"
                 disabled={gameState !== 'playing'}
@@ -330,16 +330,16 @@ const HeatSeekerGame = () => {
               <div className="flex items-center justify-center text-gray-400 text-sm">
                 Move
               </div>
-              <button 
+              <button
                 onClick={() => movePlayer('right')}
                 className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition duration-150 text-xl"
                 disabled={gameState !== 'playing'}
               >
                 →
               </button>
-              
+
               <div></div>
-              <button 
+              <button
                 onClick={() => movePlayer('down')}
                 className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition duration-150 text-xl"
                 disabled={gameState !== 'playing'}
@@ -353,13 +353,13 @@ const HeatSeekerGame = () => {
         )}
       </div>
 
-      <div className="mt-4 text-center">        
+      <div className="mt-4 text-center">
         {gameState === 'won' && (
           <div className="bg-green-800 p-4 rounded-lg">
             <h2 className="text-xl font-bold text-green-200 mb-2">🎉 Level Complete! 🎉</h2>
             <p className="mb-3">Completed in {moves} moves!</p>
             {currentLevel < levels.length - 1 ? (
-              <button 
+              <button
                 onClick={nextLevel}
                 className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
               >
@@ -368,7 +368,7 @@ const HeatSeekerGame = () => {
             ) : (
               <div>
                 <p className="text-xl font-bold text-yellow-300 mb-3">🏆 GAME COMPLETE! 🏆</p>
-                <button 
+                <button
                   onClick={resetGame}
                   className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
                 >
@@ -378,19 +378,19 @@ const HeatSeekerGame = () => {
             )}
           </div>
         )}
-        
+
         {gameState === 'lost' && (
           <div className="bg-red-800 p-4 rounded-lg">
             <h2 className="text-xl font-bold text-red-200 mb-2">💀 Game Over! 💀</h2>
             <p className="mb-3">You stepped on lava after {moves} moves!</p>
             <div className="space-x-2">
-              <button 
+              <button
                 onClick={restartLevel}
                 className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
               >
                 Retry Level
               </button>
-              <button 
+              <button
                 onClick={resetGame}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
               >
@@ -409,4 +409,4 @@ const HeatSeekerGame = () => {
   );
 };
 
-export default HeatSeekerGame;
+export default Heatseeker;
