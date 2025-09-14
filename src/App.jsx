@@ -22,6 +22,7 @@ const Heatseeker = () => {
   const [visitedSquares, setVisitedSquares] = useState(new Map());
   const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
   const [moves, setMoves] = useState(0);
+  const [totalMoves, setTotalMoves] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
 
   // Color mapping for heat signatures
@@ -151,6 +152,7 @@ const Heatseeker = () => {
 
     setPlayerPos({ x: newX, y: newY });
     setMoves(m => m + 1);
+    setTotalMoves(t => t + 1);
 
     const newKey = `${newX},${newY}`;
 
@@ -224,6 +226,7 @@ const Heatseeker = () => {
 
   const resetGame = () => {
     setCurrentLevel(0);
+    setTotalMoves(0);
     setGameStarted(false);
   };
 
@@ -267,11 +270,15 @@ const Heatseeker = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <div className="mb-4">
         <h1 className="text-3xl font-bold text-center mb-2">🔥 HEATSEEKER 🔥</h1>
-        <div className="text-center space-x-4 text-sm">
-          <span>Level: {currentLevel + 1}/10</span>
-          <span>Grid: {level.size}x{level.size}</span>
-          <span>Lava: {level.minLava}-{level.maxLava}</span>
-          <span>Moves: {moves}</span>
+        <div className="text-center text-sm">
+          <div className="space-x-4">
+            <span>Level: {currentLevel + 1} of {levels.length}</span>
+            <span>Grid: {level.size}x{level.size}</span>
+          </div>
+          <div className="space-x-4 mt-1">
+            <span>Level Moves: {moves}</span>
+            <span>Total Moves: {totalMoves}</span>
+          </div>
         </div>
       </div>
 
@@ -357,7 +364,7 @@ const Heatseeker = () => {
         {gameState === 'won' && (
           <div className="bg-green-800 p-4 rounded-lg">
             <h2 className="text-xl font-bold text-green-200 mb-2">🎉 Level Complete! 🎉</h2>
-            <p className="mb-3">Completed in {moves} moves!</p>
+            <p className="mb-3">Level completed in {moves} moves! Total: {totalMoves} moves</p>
             {currentLevel < levels.length - 1 ? (
               <button
                 onClick={nextLevel}
@@ -368,6 +375,7 @@ const Heatseeker = () => {
             ) : (
               <div>
                 <p className="text-xl font-bold text-yellow-300 mb-3">🏆 GAME COMPLETE! 🏆</p>
+                <p className="mb-3">Final score: {totalMoves} total moves!</p>
                 <button
                   onClick={resetGame}
                   className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
@@ -382,7 +390,7 @@ const Heatseeker = () => {
         {gameState === 'lost' && (
           <div className="bg-red-800 p-4 rounded-lg">
             <h2 className="text-xl font-bold text-red-200 mb-2">💀 Game Over! 💀</h2>
-            <p className="mb-3">You stepped on lava after {moves} moves!</p>
+            <p className="mb-3">You stepped on lava after {moves} moves! Total: {totalMoves} moves</p>
             <div className="space-x-2">
               <button
                 onClick={restartLevel}
