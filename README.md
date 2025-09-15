@@ -3,10 +3,10 @@
 **Don't step in lava!**
 Navigate from the bottom-left to the top-right based on the heat of each tile.
 
-Designed as an [ARC-AGI-3 Challenge](https://arcprize.org/arc-agi/3/) game to test AI/ML model reasoning skills: "Easy for Humans, Hard for AI." Game rules are a puzzle on purpose. **For humans...** if you're just intersted in playing a game, see the rules below.
+Designed as an [ARC-AGI-3 Challenge](https://arcprize.org/arc-agi/3/) game to test AI/ML model reasoning skills: "Easy for Humans, Hard for AI." Game rules are a puzzle on purpose. **For humans...** turns out the game is fairly fun, even if figuring out the rules and color hints aren't. If you're just intersted in playing a game, see the rules below.
 
-![Heatseeker game play, level win](./docs/assets/heatseeker%20gameplay%20screen%20-%20game%20over.png)
-![Heatseeker game play, found the level](./docs/assets/heatseeker%20gameplay%20screen%20-%20level%20complete.png)
+![Heatseeker game play, level win :smiley:](./docs/assets/heatseeker%20gameplay%20screen%20-%20level%20complete.png)
+![Heatseeker game play, found the lava :anguished:](./docs/assets/heatseeker%20gameplay%20screen%20-%20game%20over.png)
 
 ## Gameplay Rules
 
@@ -14,15 +14,15 @@ Navigate from bottom-left to top-right corner to complete each level.
 
 * Use arrow keys to move, but AVOID landing on a lava square
 * Colors show the lava count in bordering squares. Increasing heat (yellow, orange, red) means more lava on the next move:
-  * Light Grey = 0 nearby
-  * Light Yellow = 1 nearby
-  * Yellow = 2 nearby
-  * Bright Yellow = 3 nearby
-  * Yellow-Orange = 4 nearby
-  * Orange = 5 nearby
-  * Orange-Red = 6 nearby
-  * Light Red = 7 nearby
-  * Neon Pink = 8 nearby
+  * Light Grey = 0 lava nearby
+  * Light Yellow = 1 lavas nearby
+  * Yellow = 2 lavas nearby
+  * Bright Yellow = 3 lavas nearby
+  * Yellow-Orange = 4 lavas nearby
+  * Orange = 5 lavas nearby
+  * Orange-Red = 6 lavas nearby
+  * Light Red = 7 lavas nearby
+  * Neon Pink = 8 lavas nearby
 
 ---
 
