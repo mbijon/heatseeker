@@ -361,7 +361,6 @@ const Heatseeker = () => {
 
       <div className="mt-4 text-xs text-gray-400 text-center max-w-lg">
         <p>Navigate safely through the lava field using heat signatures to detect danger!</p>
-        <p>Blue border = Player | Green = Target | Colors = Heat level | Black = Lava (death)</p>
       </div>
     </div>
   );
