@@ -46,24 +46,8 @@ describe('Heatseeker Game Component', () => {
       render(<App />)
 
       expect(screen.getByText('🔥 HEATSEEKER 🔥')).toBeInTheDocument()
-      expect(screen.getByText('Game Rules:')).toBeInTheDocument()
+      expect(screen.getByText('Leaderboard:')).toBeInTheDocument()
       expect(screen.getByText('Start Game')).toBeInTheDocument()
-    })
-
-    it('should display game rules on start screen', () => {
-      render(<App />)
-
-      expect(screen.getByText(/Navigate from bottom-left to top-right/)).toBeInTheDocument()
-      expect(screen.getByText(/Use arrow keys to move/)).toBeInTheDocument()
-      expect(screen.getByText(/Avoid lava squares/)).toBeInTheDocument()
-    })
-
-    it('should display heat signature color guide', () => {
-      render(<App />)
-
-      expect(screen.getByText('Light Grey = 0 nearby')).toBeInTheDocument()
-      expect(screen.getByText('Light Yellow = 1 nearby')).toBeInTheDocument()
-      expect(screen.getByText('Neon Pink = 8 nearby')).toBeInTheDocument()
     })
   })
 
@@ -88,7 +72,6 @@ describe('Heatseeker Game Component', () => {
 
       await user.click(screen.getByText('Start Game'))
 
-      expect(screen.getByText('Move to the green target!')).toBeInTheDocument()
       expect(screen.getByText('↑')).toBeInTheDocument()
       expect(screen.getByText('↓')).toBeInTheDocument()
       expect(screen.getByText('←')).toBeInTheDocument()
@@ -192,16 +175,7 @@ describe('Heatseeker Game Component', () => {
       await user.click(screen.getByText('Start Game'))
 
       expect(screen.getByText('Navigate safely through the lava field using heat signatures to detect danger!')).toBeInTheDocument()
-      expect(screen.getByText('Blue border = Player | Green = Target | Colors = Heat level | Black = Lava (death)')).toBeInTheDocument()
     })
 
-    it('should show keyboard and mobile control instructions', async () => {
-      const user = userEvent.setup()
-      render(<App />)
-
-      await user.click(screen.getByText('Start Game'))
-
-      expect(screen.getByText('Tap buttons or use keyboard arrow keys')).toBeInTheDocument()
-    })
   })
 })

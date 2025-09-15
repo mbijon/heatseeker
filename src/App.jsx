@@ -253,7 +253,6 @@ const Heatseeker = () => {
       <div className="mt-4 flex flex-col items-center">
         {gameState === 'playing' && (
           <div className="mb-4">
-            <p className="text-lg mb-3">Move to the green target!</p>
             {/* D-pad style controls */}
             <div className="grid grid-cols-3 gap-2 w-48">
               <div></div>
