@@ -4,22 +4,28 @@ import {
   calculateHeat,
   generateLavaSquares as generateLavaSquaresUtil,
   getHeatColor
-} from './gameLogic.js';
+} from './gameLogic';
+import type {
+  Position,
+  GameState,
+  Direction,
+  VisitedSquares,
+  LavaSquares
+} from './types';
 
-const Heatseeker = () => {
-
+const Heatseeker: React.FC = () => {
   // Game state
-  const [currentLevel, setCurrentLevel] = useState(0);
-  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
-  const [lavaSquares, setLavaSquares] = useState(new Set());
-  const [visitedSquares, setVisitedSquares] = useState(new Map());
-  const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
-  const [moves, setMoves] = useState(0);
-  const [totalMoves, setTotalMoves] = useState(0);
-  const [gameStarted, setGameStarted] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState<number>(0);
+  const [playerPos, setPlayerPos] = useState<Position>({ x: 0, y: 0 });
+  const [lavaSquares, setLavaSquares] = useState<LavaSquares>(new Set());
+  const [visitedSquares, setVisitedSquares] = useState<VisitedSquares>(new Map());
+  const [gameState, setGameState] = useState<GameState>('playing');
+  const [moves, setMoves] = useState<number>(0);
+  const [totalMoves, setTotalMoves] = useState<number>(0);
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
 
   // Color mapping for heat signatures
-  const getSquareColor = (x, y, size) => {
+  const getSquareColor = (x: number, y: number, size: number): string => {
     const key = `${x},${y}`;
     const isPlayer = playerPos.x === x && playerPos.y === y;
     const isTarget = x === size - 1 && y === 0; // top-right
@@ -35,27 +41,25 @@ const Heatseeker = () => {
     // Visited safe squares
     if (isVisited) {
       const heatLevel = visitedSquares.get(key);
-      return getHeatColor(heatLevel);
+      return getHeatColor(heatLevel!);
     }
 
     // Unexplored squares
     return 'bg-gray-400';
   };
 
-
-
   // Calculate adjacent lava squares using current state
-  const countAdjacentLava = useCallback((x, y) => {
+  const countAdjacentLava = useCallback((x: number, y: number): number => {
     return calculateHeat(x, y, lavaSquares);
   }, [lavaSquares]);
 
   // Generate random lava squares for current level
-  const generateLavaSquares = useCallback(() => {
+  const generateLavaSquares = useCallback((): LavaSquares => {
     return generateLavaSquaresUtil(currentLevel);
   }, [currentLevel]);
 
   // Initialize level
-  const initializeLevel = useCallback(() => {
+  const initializeLevel = useCallback((): void => {
     const level = levels[currentLevel];
     const startX = 0;
     const startY = level.size - 1;
@@ -75,7 +79,7 @@ const Heatseeker = () => {
   }, [currentLevel, generateLavaSquares]);
 
   // Handle player movement
-  const movePlayer = useCallback((direction) => {
+  const movePlayer = useCallback((direction: Direction): void => {
     if (gameState !== 'playing') return;
 
     const level = levels[currentLevel];
@@ -126,7 +130,7 @@ const Heatseeker = () => {
 
   // Keyboard controls
   useEffect(() => {
-    const handleKeyPress = (event) => {
+    const handleKeyPress = (event: KeyboardEvent): void => {
       if (!gameStarted) return;
 
       switch (event.key) {
@@ -160,21 +164,21 @@ const Heatseeker = () => {
     }
   }, [initializeLevel, gameStarted]);
 
-  const startGame = () => {
+  const startGame = (): void => {
     setGameStarted(true);
   };
 
-  const nextLevel = () => {
+  const nextLevel = (): void => {
     if (currentLevel < levels.length - 1) {
       setCurrentLevel(prev => prev + 1);
     }
   };
 
-  const restartLevel = () => {
+  const restartLevel = (): void => {
     initializeLevel();
   };
 
-  const resetGame = () => {
+  const resetGame = (): void => {
     setCurrentLevel(0);
     setTotalMoves(0);
     setGameStarted(false);
