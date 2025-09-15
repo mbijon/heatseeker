@@ -185,21 +185,10 @@ const Heatseeker = () => {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-8">
         <h1 className="text-4xl font-bold mb-8 text-center">🔥 HEATSEEKER 🔥</h1>
         <div className="bg-gray-800 p-6 rounded-lg max-w-2xl">
-          <h2 className="text-xl font-semibold mb-4">Game Rules:</h2>
-          <ul className="space-y-2 text-sm mb-6">
-            <li>• Navigate from bottom-left to top-right corner</li>
-            <li>• Use arrow keys to move</li>
-            <li>• Avoid lava squares (they turn black and end the game)</li>
-            <li>• Colors show heat signatures (nearby lava count):</li>
-            <li className="ml-4 text-gray-300">Light Grey = 0 nearby</li>
-            <li className="ml-4 text-yellow-200">Light Yellow = 1 nearby</li>
-            <li className="ml-4 text-yellow-300">Yellow = 2 nearby</li>
-            <li className="ml-4 text-yellow-400">Bright Yellow = 3 nearby</li>
-            <li className="ml-4 text-yellow-500">Yellow-Orange = 4 nearby</li>
-            <li className="ml-4 text-orange-400">Orange = 5 nearby</li>
-            <li className="ml-4 text-orange-500">Orange-Red = 6 nearby</li>
-            <li className="ml-4 text-red-400">Light Red = 7 nearby</li>
-            <li className="ml-4 text-pink-400">Neon Pink = 8 nearby</li>
+          <h2 className="text-xl font-semibold mb-4">Leaderboard:</h2>
+          <ul>
+            <li>...coming soon</li>
+            <li>&nbsp;</li>
           </ul>
           <button
             onClick={startGame}
