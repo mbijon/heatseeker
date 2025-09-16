@@ -12,7 +12,6 @@ import type {
   VisitedSquares,
   LavaSquares
 } from './types';
-import { Analytics } from "@vercel/analytics/next";
 
 function Heatseeker() {
   // Game state
