@@ -189,19 +189,31 @@ const Heatseeker: React.FC = () => {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-8">
         <h1 className="text-4xl font-bold mb-8 text-center">🔥 HEATSEEKER 🔥</h1>
         <div className="bg-gray-800 p-6 rounded-lg max-w-2xl">
-          <h2 className="text-xl font-semibold mb-4">Leaderboard:</h2>
-          <ul>
-            <li>...coming soon</li>
-            <li>&nbsp;</li>
-          </ul>
-          <button
-            onClick={startGame}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
-          >
-            Start Game
-          </button>
+          <div className="space-x-4 mt-1">
+            <h2 className="text-xl font-semibold mb-4">
+              Don't step in lava!
+            </h2>
+            <p>
+              Designed as an ARC-AGI-3 Challenge game to test AI/ML model reasoning skills: "Easy for Humans, Hard for AI." Game rules are a puzzle on purpose. For humans... the game is fun once you figure out the rules.
+            </p>
+          </div>
+          <div className="space-x-4 mt-1 text-center">
+            <button
+              onClick={startGame}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
+            >
+              Start Game
+            </button>
+          </div>
+          <div className="space-x-4 mt-1">
+            <h2 className="text-xl font-semibold mb-4">Leaderboard:</h2>
+            <ul>
+              <li>...coming soon</li>
+              <li>&nbsp;</li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </div >
     );
   }
 
