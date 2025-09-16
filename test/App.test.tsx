@@ -1,15 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import App from '../src/App.jsx'
+import Heatseeker from '../src/App'
+import type { Position, LavaSquares } from '../src/types'
 
 // Mock the game logic to make tests deterministic
-vi.mock('../src/gameLogic.js', () => ({
+vi.mock('../src/gameLogic', () => ({
   levels: [
     { size: 10, minLava: 1, maxLava: 5 },
     { size: 10, minLava: 5, maxLava: 15 }
   ],
-  calculateHeat: vi.fn((x, y, lavaSet) => {
+  calculateHeat: vi.fn((x: number, y: number, lavaSet: LavaSquares): number => {
     // Mock implementation - return 1 if adjacent to any lava
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
@@ -20,8 +21,8 @@ vi.mock('../src/gameLogic.js', () => ({
     }
     return 0
   }),
-  generateLavaSquares: vi.fn(() => new Set(['5,5', '6,6'])),
-  isValidMove: vi.fn((pos, direction, gridSize) => {
+  generateLavaSquares: vi.fn((): LavaSquares => new Set(['5,5', '6,6'])),
+  isValidMove: vi.fn((pos: Position, direction: string, gridSize: number) => {
     let newX = pos.x
     let newY = pos.y
 
@@ -35,15 +36,21 @@ vi.mock('../src/gameLogic.js', () => ({
     const moved = newX !== pos.x || newY !== pos.y
     return { valid: moved, newPos: { x: newX, y: newY } }
   }),
-  isTargetPosition: vi.fn((pos, gridSize) => pos.x === gridSize - 1 && pos.y === 0),
-  isLavaPosition: vi.fn((pos, lavaSet) => lavaSet.has(`${pos.x},${pos.y}`)),
-  getHeatColor: vi.fn((count) => count === 0 ? 'bg-gray-300' : 'bg-yellow-200')
+  isTargetPosition: vi.fn((pos: Position, gridSize: number): boolean =>
+    pos.x === gridSize - 1 && pos.y === 0
+  ),
+  isLavaPosition: vi.fn((pos: Position, lavaSet: LavaSquares): boolean =>
+    lavaSet.has(`${pos.x},${pos.y}`)
+  ),
+  getHeatColor: vi.fn((count: number): string =>
+    count === 0 ? 'bg-gray-300' : 'bg-yellow-200'
+  )
 }))
 
 describe('Heatseeker Game Component', () => {
   describe('Initial Game State', () => {
     it('should render start screen with game title', () => {
-      render(<App />)
+      render(<Heatseeker />)
 
       expect(screen.getByText('🔥 HEATSEEKER 🔥')).toBeInTheDocument()
       expect(screen.getByText('Leaderboard:')).toBeInTheDocument()
@@ -54,7 +61,7 @@ describe('Heatseeker Game Component', () => {
   describe('Game Start', () => {
     it('should start game when Start Game button is clicked', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
 
       const startButton = screen.getByText('Start Game')
       await user.click(startButton)
@@ -68,7 +75,7 @@ describe('Heatseeker Game Component', () => {
 
     it('should display mobile controls after starting game', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
 
@@ -82,7 +89,7 @@ describe('Heatseeker Game Component', () => {
   describe('Game Controls', () => {
     beforeEach(async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
       await user.click(screen.getByText('Start Game'))
     })
 
@@ -123,7 +130,7 @@ describe('Heatseeker Game Component', () => {
   describe('Game Grid', () => {
     it('should render game grid after starting', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
 
@@ -132,13 +139,13 @@ describe('Heatseeker Game Component', () => {
       expect(gridContainer).toBeInTheDocument()
 
       // Should have correct number of grid cells (10x10 = 100 cells)
-      const gridCells = gridContainer.children
+      const gridCells = gridContainer?.children
       expect(gridCells).toHaveLength(100)
     })
 
     it('should show player position with blue ring', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
 
@@ -151,7 +158,7 @@ describe('Heatseeker Game Component', () => {
   describe('Move Counter', () => {
     it('should increment move counters when player moves', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
 
@@ -170,12 +177,11 @@ describe('Heatseeker Game Component', () => {
   describe('Game Instructions', () => {
     it('should show help text during gameplay', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
 
       expect(screen.getByText('Navigate safely through the lava field using heat signatures to detect danger!')).toBeInTheDocument()
     })
-
   })
 })
