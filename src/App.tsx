@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   levels,
   calculateHeat,
@@ -12,8 +12,9 @@ import type {
   VisitedSquares,
   LavaSquares
 } from './types';
+import { Analytics } from "@vercel/analytics/next";
 
-const Heatseeker: React.FC = () => {
+function Heatseeker() {
   // Game state
   const [currentLevel, setCurrentLevel] = useState<number>(0);
   const [playerPos, setPlayerPos] = useState<Position>({ x: 0, y: 0 });
@@ -213,7 +214,7 @@ const Heatseeker: React.FC = () => {
             </ul>
           </div>
         </div>
-      </div >
+      </div>
     );
   }
 
@@ -244,24 +245,22 @@ const Heatseeker: React.FC = () => {
           width: 'fit-content'
         }}
       >
-        {Array.from({ length: level.size }, (_, y) =>
-          Array.from({ length: level.size }, (_, x) => {
-            const isPlayer = playerPos.x === x && playerPos.y === y;
-            const squareColor = getSquareColor(x, y, level.size);
+        {Array.from({ length: level.size }, (_, y) => Array.from({ length: level.size }, (_, x) => {
+          const isPlayer = playerPos.x === x && playerPos.y === y;
+          const squareColor = getSquareColor(x, y, level.size);
 
-            return (
-              <div
-                key={`${x}-${y}`}
-                className={`${squareColor} ${isPlayer ? 'ring-2 ring-blue-400 ring-inset' : ''} border border-gray-700`}
-                style={{
-                  width: `${cellSize}px`,
-                  height: `${cellSize}px`,
-                  minWidth: '4px',
-                  minHeight: '4px'
-                }}
-              />
-            );
-          })
+          return (
+            <div
+              key={`${x}-${y}`}
+              className={`${squareColor} ${isPlayer ? 'ring-2 ring-blue-400 ring-inset' : ''} border border-gray-700`}
+              style={{
+                width: `${cellSize}px`,
+                height: `${cellSize}px`,
+                minWidth: '4px',
+                minHeight: '4px'
+              }} />
+          );
+        })
         )}
       </div>
 
@@ -368,6 +367,6 @@ const Heatseeker: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Heatseeker;
