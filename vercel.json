@@ -1,0 +1,8 @@
+{
+    "build": {
+        "env": {
+            "VITE_BUILD_TARGET": "vercel"
+        }
+    },
+    "outputDirectory": "dist"
+}
