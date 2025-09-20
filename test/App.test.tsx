@@ -1,17 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Heatseeker from '../src/App'
 import type { Position, LavaSquares } from '../src/types'
 
-// Mock the game logic to make tests deterministic
-vi.mock('../src/gameLogic', () => ({
-  levels: [
-    { size: 10, minLava: 1, maxLava: 5 },
-    { size: 10, minLava: 5, maxLava: 15 }
-  ],
-  calculateHeat: vi.fn((x: number, y: number, lavaSet: LavaSquares): number => {
-    // Mock implementation - return 1 if adjacent to any lava
+const gameLogicMocks = vi.hoisted(() => {
+  const generateLavaSquaresMock = vi.fn((): LavaSquares => new Set(['5,5', '6,6']))
+  const calculateHeatMock = vi.fn((x: number, y: number, lavaSet: LavaSquares): number => {
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
         if (dx === 0 && dy === 0) continue
@@ -20,9 +15,11 @@ vi.mock('../src/gameLogic', () => ({
       }
     }
     return 0
-  }),
-  generateLavaSquares: vi.fn((): LavaSquares => new Set(['5,5', '6,6'])),
-  isValidMove: vi.fn((pos: Position, direction: string, gridSize: number) => {
+  })
+  const getHeatColorMock = vi.fn((count: number): string =>
+    count === 0 ? 'bg-gray-300' : 'bg-yellow-200'
+  )
+  const isValidMoveMock = vi.fn((pos: Position, direction: string, gridSize: number) => {
     let newX = pos.x
     let newY = pos.y
 
@@ -35,17 +32,69 @@ vi.mock('../src/gameLogic', () => ({
 
     const moved = newX !== pos.x || newY !== pos.y
     return { valid: moved, newPos: { x: newX, y: newY } }
-  }),
-  isTargetPosition: vi.fn((pos: Position, gridSize: number): boolean =>
+  })
+  const isTargetPositionMock = vi.fn((pos: Position, gridSize: number): boolean =>
     pos.x === gridSize - 1 && pos.y === 0
-  ),
-  isLavaPosition: vi.fn((pos: Position, lavaSet: LavaSquares): boolean =>
+  )
+  const isLavaPositionMock = vi.fn((pos: Position, lavaSet: LavaSquares): boolean =>
     lavaSet.has(`${pos.x},${pos.y}`)
-  ),
-  getHeatColor: vi.fn((count: number): string =>
+  )
+
+  return {
+    generateLavaSquaresMock,
+    calculateHeatMock,
+    getHeatColorMock,
+    isValidMoveMock,
+    isTargetPositionMock,
+    isLavaPositionMock
+  }
+})
+
+// Mock the game logic to make tests deterministic
+vi.mock('../src/gameLogic', () => ({
+  levels: [
+    { size: 10, minLava: 1, maxLava: 5 },
+    { size: 10, minLava: 5, maxLava: 15 }
+  ],
+  calculateHeat: gameLogicMocks.calculateHeatMock,
+  generateLavaSquares: gameLogicMocks.generateLavaSquaresMock,
+  isValidMove: gameLogicMocks.isValidMoveMock,
+  isTargetPosition: gameLogicMocks.isTargetPositionMock,
+  isLavaPosition: gameLogicMocks.isLavaPositionMock,
+  getHeatColor: gameLogicMocks.getHeatColorMock
+}))
+
+const {
+  generateLavaSquaresMock,
+  calculateHeatMock,
+  getHeatColorMock
+} = gameLogicMocks
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  generateLavaSquaresMock.mockReset()
+  calculateHeatMock.mockReset()
+  getHeatColorMock.mockReset()
+
+  generateLavaSquaresMock.mockImplementation(() => new Set(['5,5', '6,6']))
+  calculateHeatMock.mockImplementation((x: number, y: number, lavaSet: LavaSquares): number => {
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        if (dx === 0 && dy === 0) continue
+        const checkKey = `${x + dx},${y + dy}`
+        if (lavaSet.has(checkKey)) return 1
+      }
+    }
+    return 0
+  })
+  getHeatColorMock.mockImplementation((count: number): string =>
     count === 0 ? 'bg-gray-300' : 'bg-yellow-200'
   )
-}))
+})
+
+afterEach(() => {
+  vi.clearAllMocks()
+})
 
 describe('Heatseeker Game Component', () => {
   describe('Initial Game State', () => {
@@ -182,6 +231,82 @@ describe('Heatseeker Game Component', () => {
       await user.click(screen.getByText('Start Game'))
 
       expect(screen.getByText('Navigate safely through the lava field using heat signatures to detect danger!')).toBeInTheDocument()
+    })
+  })
+
+  describe('Gameplay Outcomes', () => {
+    it('should trigger game over when stepping on lava and reset on retry', async () => {
+      const user = userEvent.setup()
+      generateLavaSquaresMock
+        .mockReturnValueOnce(new Set(['1,9']))
+        .mockReturnValueOnce(new Set())
+
+      render(<Heatseeker />)
+      await user.click(screen.getByText('Start Game'))
+
+      await user.click(screen.getByText('→'))
+
+      await screen.findByText('💀 Game Over! 💀')
+      expect(screen.getByText('Level Moves: 1')).toBeInTheDocument()
+      expect(screen.getByText('Total Moves: 1')).toBeInTheDocument()
+      expect(document.querySelector('.bg-black')).toBeTruthy()
+
+      await user.click(screen.getByText('Retry Level'))
+
+      await waitFor(() => {
+        expect(screen.getByText('Level Moves: 0')).toBeInTheDocument()
+        expect(screen.getByText('Total Moves: 1')).toBeInTheDocument()
+      })
+      expect(document.querySelector('.bg-black')).toBeFalsy()
+    })
+
+    it('should progress through levels and return to menu after winning', async () => {
+      const user = userEvent.setup()
+      document.body.focus()
+      generateLavaSquaresMock.mockImplementation(() => new Set())
+
+      render(<Heatseeker />)
+      await user.click(screen.getByText('Start Game'))
+
+      for (let i = 0; i < 9; i++) {
+        await user.keyboard('{ArrowUp}')
+      }
+      for (let i = 0; i < 9; i++) {
+        await user.keyboard('{ArrowRight}')
+      }
+
+      await screen.findByText('🎉 Level Complete! 🎉')
+      await user.click(screen.getByText('Next Level'))
+      expect(screen.getByText('Level: 2 of 2')).toBeInTheDocument()
+
+      for (let i = 0; i < 9; i++) {
+        await user.keyboard('{ArrowUp}')
+      }
+      for (let i = 0; i < 9; i++) {
+        await user.keyboard('{ArrowRight}')
+      }
+
+      await screen.findByText('🏆 GAME COMPLETE! 🏆')
+      await user.click(screen.getByText('Play Again'))
+
+      await waitFor(() => {
+        expect(screen.getByText('Start Game')).toBeInTheDocument()
+      })
+    })
+
+    it('should ignore movement that keeps the player in place', async () => {
+      const user = userEvent.setup()
+      render(<Heatseeker />)
+      await user.click(screen.getByText('Start Game'))
+
+      document.body.focus()
+      await user.keyboard('{ArrowLeft}')
+
+      await waitFor(() => {
+        expect(screen.getByText('Level Moves: 0')).toBeInTheDocument()
+        expect(screen.getByText('Total Moves: 0')).toBeInTheDocument()
+        expect(screen.queryByText('Level Moves: 1')).not.toBeInTheDocument()
+      })
     })
   })
 })
