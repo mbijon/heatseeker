@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: './', // Use relative paths for assets - fixes Vercel deployment
+  envPrefix: ['VITE_', 'PUBLIC_HEATSEEKER_'],
   server: {
     port: 3000,
     open: true
