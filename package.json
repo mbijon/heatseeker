@@ -23,6 +23,7 @@
     "jsdom": "^23.0.1",
     "postcss": "^8.5.6",
     "postcss-load-config": "^6.0.1",
+    "supabase": "^2.40.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
