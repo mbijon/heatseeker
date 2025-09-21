@@ -323,6 +323,10 @@ function Heatseeker() {
     setNamePromptAcknowledged(true);
   }, []);
 
+  const handleBailout = useCallback(() => {
+    resetGame();
+  }, [resetGame]);
+
   const leaderboardHighlightSessionId = useMemo(() => {
     return playerEntry?.playerName ? playerEntry.sessionId : null;
   }, [playerEntry]);
@@ -417,45 +421,57 @@ function Heatseeker() {
 
       <div className="mt-4 flex flex-col items-center">
         {gameState === 'playing' && (
-          <div className="mb-4">
-            <div className="grid w-48 grid-cols-3 gap-2">
-              <div />
-              <button
-                onClick={() => movePlayer('up')}
-                className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
-                disabled={gameState !== 'playing'}
-              >
-                ↑
-              </button>
-              <div />
+          <div className="mb-4 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+            <div className="flex flex-col items-center">
+              <div className="grid w-48 grid-cols-3 gap-2">
+                <div />
+                <button
+                  onClick={() => movePlayer('up')}
+                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  disabled={gameState !== 'playing'}
+                >
+                  ↑
+                </button>
+                <div />
 
-              <button
-                onClick={() => movePlayer('left')}
-                className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
-                disabled={gameState !== 'playing'}
-              >
-                ←
-              </button>
-              <div className="flex items-center justify-center text-sm text-gray-400">Move</div>
-              <button
-                onClick={() => movePlayer('right')}
-                className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
-                disabled={gameState !== 'playing'}
-              >
-                →
-              </button>
+                <button
+                  onClick={() => movePlayer('left')}
+                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  disabled={gameState !== 'playing'}
+                >
+                  ←
+                </button>
+                <div className="flex items-center justify-center text-sm text-gray-400">Move</div>
+                <button
+                  onClick={() => movePlayer('right')}
+                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  disabled={gameState !== 'playing'}
+                >
+                  →
+                </button>
 
-              <div />
-              <button
-                onClick={() => movePlayer('down')}
-                className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
-                disabled={gameState !== 'playing'}
-              >
-                ↓
-              </button>
-              <div />
+                <div />
+                <button
+                  onClick={() => movePlayer('down')}
+                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  disabled={gameState !== 'playing'}
+                >
+                  ↓
+                </button>
+                <div />
+              </div>
+              <p className="mt-2 text-xs text-gray-400">Tap buttons or use keyboard arrow keys</p>
             </div>
-            <p className="mt-2 text-xs text-gray-400">Tap buttons or use keyboard arrow keys</p>
+            <div className="flex flex-col items-center text-center">
+              <p className="mb-2 text-sm text-gray-200">Getting too hot?</p>
+              <button
+                onClick={handleBailout}
+                className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-500 disabled:opacity-60"
+                disabled={isEvaluatingLeaderboard || showNameModal}
+              >
+                Bailout
+              </button>
+            </div>
           </div>
         )}
       </div>
