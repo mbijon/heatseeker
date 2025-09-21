@@ -3,6 +3,8 @@
 **Don't step in lava!** 🔥
 Navigate from the bottom-left to the top-right based on the heat of each tile.
 
+[Play Heatseeker!](https://heatseeker-one.vercel.app/)
+
 Designed as an [ARC-AGI-3 Challenge](https://arcprize.org/arc-agi/3/) game to test AI/ML model reasoning skills: "Easy for Humans, Hard for AI." Game rules are a puzzle on purpose. **For humans...** turns out the game is fairly fun, even if figuring out the rules and color hints aren't. If you're just intersted in playing a game, see the rules below.
 
 ![Heatseeker game play, level win :smiley:](./docs/assets/heatseeker%20gameplay%20screen%20-%20level%20complete.png)
