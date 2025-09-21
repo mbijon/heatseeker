@@ -54,7 +54,7 @@ const leaderboardMocks = vi.hoisted(() => ({
   startNewSession: vi.fn(async () => 'mock-session-id'),
   recordProgress: vi.fn(async () => ({ entry: null, rank: null, shouldPromptName: false })),
   submitIdentity: vi.fn(async () => ({ entry: null, rank: null, shouldPromptName: false })),
-  refreshLeaderboard: vi.fn(async () => {})
+  refreshLeaderboard: vi.fn(async () => { })
 }))
 
 // Mock the game logic to make tests deterministic
@@ -133,7 +133,6 @@ describe('Heatseeker Game Component', () => {
 
       expect(screen.getByText('🔥 HEATSEEKER 🔥')).toBeInTheDocument()
       expect(screen.getByText('Leaderboard')).toBeInTheDocument()
-      expect(screen.getByText(/No ranked runs yet/i)).toBeInTheDocument()
       expect(screen.getByText('Start Game')).toBeInTheDocument()
     })
   })

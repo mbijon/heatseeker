@@ -332,8 +332,11 @@ function Heatseeker() {
   }, [playerEntry]);
 
   const level = levels[currentLevel];
-  const gridSize = Math.min(600, Math.max(300, 800 / level.size));
-  const cellSize = Math.max(4, gridSize / level.size);
+  const maxGridWidth = 720; // matches start screen container width (max-w-3xl)
+  const maxCellSize = 30;
+  const minCellSize = 4;
+  const rawCellSize = Math.floor(Math.min(maxCellSize, maxGridWidth / level.size));
+  const cellSize = Math.max(minCellSize, rawCellSize);
 
   if (!gameStarted) {
     return (
