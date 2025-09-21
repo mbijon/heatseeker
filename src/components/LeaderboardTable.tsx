@@ -25,14 +25,6 @@ const LeaderboardTable = ({
     );
   }
 
-  if (!isLoading && entries.length === 0) {
-    return (
-      <div className="rounded-lg border border-gray-700 bg-gray-900/70 p-4 text-sm text-gray-400">
-        No ranked runs yet. Be the first to chart a path through the lava field!
-      </div>
-    );
-  }
-
   return (
     <div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-900/70">
       <table className={`${tableBaseClasses} font-mono`}>
@@ -49,33 +41,52 @@ const LeaderboardTable = ({
           {isLoading
             ? Array.from({ length: 10 }).map((_, idx) => (
                 <tr key={`placeholder-${idx}`} className="animate-pulse">
-                  <td className={`${cellClasses} text-gray-600`}>--</td>
+                  <td className={`${cellClasses} pl-6 text-gray-600`}>--</td>
                   <td className={`${cellClasses} text-gray-600`}>loading...</td>
                   <td className={`${cellClasses} text-gray-600`}>--</td>
                   <td className={`${cellClasses} text-gray-600`}>--</td>
                   <td className={`${cellClasses} text-gray-600`}>--</td>
                 </tr>
               ))
-            : entries.map(entry => {
-                const isHighlighted = highlightSessionId === entry.sessionId;
-                const typeLabel = entry.isHuman == null ? 'Unknown' : entry.isHuman ? 'Human' : 'AI';
+            : (() => {
+                const maxRows = 10;
+                const trimmedEntries = entries.slice(0, maxRows);
+                const fillerCount = Math.max(0, maxRows - trimmedEntries.length);
+
                 return (
-                  <tr
-                    key={entry.sessionId}
-                    className={
-                      isHighlighted
-                        ? 'bg-green-900/60 text-green-200'
-                        : 'text-gray-200'
-                    }
-                  >
-                    <td className={`${cellClasses} pl-6 pr-4`}>#{entry.rank}</td>
-                    <td className={`${cellClasses} pr-4`}>{entry.playerName}</td>
-                    <td className={`${cellClasses} pr-4`}>{typeLabel}</td>
-                    <td className={`${cellClasses} pr-4`}>{entry.levelReached}</td>
-                    <td className={cellClasses}>{entry.totalMoves}</td>
-                  </tr>
+                  <>
+                    {trimmedEntries.map(entry => {
+                      const isHighlighted = highlightSessionId === entry.sessionId;
+                      const typeLabel = entry.isHuman == null ? 'Unknown' : entry.isHuman ? 'Human' : 'AI';
+                      return (
+                        <tr
+                          key={entry.sessionId}
+                          className={
+                            isHighlighted
+                              ? 'bg-green-900/60 text-green-200'
+                              : 'text-gray-200'
+                          }
+                        >
+                          <td className={`${cellClasses} pl-6 pr-4`}>#{entry.rank}</td>
+                          <td className={`${cellClasses} pr-4`}>{entry.playerName}</td>
+                          <td className={`${cellClasses} pr-4`}>{typeLabel}</td>
+                          <td className={`${cellClasses} pr-4`}>{entry.levelReached}</td>
+                          <td className={cellClasses}>{entry.totalMoves}</td>
+                        </tr>
+                      );
+                    })}
+                    {Array.from({ length: fillerCount }).map((_, idx) => (
+                      <tr key={`empty-${idx}`} className="text-gray-500">
+                        <td className={`${cellClasses} pl-6 pr-4`}>--</td>
+                        <td className={`${cellClasses} pr-4`}>--</td>
+                        <td className={`${cellClasses} pr-4`}>--</td>
+                        <td className={`${cellClasses} pr-4`}>--</td>
+                        <td className={cellClasses}>--</td>
+                      </tr>
+                    ))}
+                  </>
                 );
-              })}
+              })()}
         </tbody>
       </table>
     </div>
