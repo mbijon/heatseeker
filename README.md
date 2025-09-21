@@ -92,3 +92,30 @@ npm run test:e2e:report
 ```
 
 E2E tests run across multiple browsers (Chrome, Firefox, Safari) and device types (desktop, tablet, mobile).
+
+## Supabase & Database
+
+The leaderboard is backed by the Supabase Postgres database named `prbase`. Supabase credentials for local and remote environments live in `.env.local`; confirm they match project secrets before running database tasks.
+
+### Common Supabase Commands
+
+```bash
+# create a new migration under supabase/migrations/
+supabase migrations new descriptive_name
+
+# apply pending migrations to the prbase database
+supabase db push
+
+# reset the local shadow database to re-run migrations
+supabase db reset
+
+# serve an edge function locally (reads env vars from .env.local)
+supabase functions serve start-session --env-file .env.local
+
+# deploy edge functions to Supabase
+supabase functions deploy start-session
+supabase functions deploy update-score
+supabase functions deploy leaderboard
+```
+
+Whenever you change migrations or edge functions, push the code and redeploy (`supabase db push` followed by the appropriate `supabase functions deploy ...`) so the `prbase` database and functions stay synchronized with the repository.
