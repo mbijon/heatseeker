@@ -31,6 +31,28 @@ interface UseLeaderboardResult {
   refreshLeaderboard: () => Promise<void>;
 }
 
+interface CachedScore {
+  levelReached: number;
+  totalMoves: number;
+}
+
+type ScoredRecord = {
+  levelReached: number;
+  totalMoves: number;
+};
+
+const compareByScore = <T extends ScoredRecord>(a: T, b: T): number => {
+  if (a.levelReached !== b.levelReached) {
+    return b.levelReached - a.levelReached;
+  }
+
+  if (a.totalMoves !== b.totalMoves) {
+    return a.totalMoves - b.totalMoves;
+  }
+
+  return 0;
+};
+
 const mapSessionEntry = (
   sessionId: string | null,
   result: UpdateScoreResult | null,
@@ -65,13 +87,45 @@ export const useLeaderboard = (): UseLeaderboardResult => {
   const [isHuman, setIsHuman] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [topTenCache, setTopTenCache] = useState<CachedScore[]>([]);
 
   const lastReportedRef = useRef<{ levelReached: number; totalMoves: number } | null>(null);
+
+  const syncCacheFromEntries = useCallback((entries: LeaderboardEntry[]) => {
+    setTopTenCache(entries.slice(0, 10).map(entry => ({
+      levelReached: entry.levelReached,
+      totalMoves: entry.totalMoves
+    })));
+  }, []);
+
+  const mergeScoreIntoCache = useCallback((score: CachedScore) => {
+    setTopTenCache(prev => {
+      const pool = [...prev, score];
+      pool.sort(compareByScore);
+      return pool.slice(0, 10);
+    });
+  }, []);
+
+  const computeLocalRank = useCallback((score: CachedScore) => {
+    const pool = topTenCache.map((cached, index) => ({
+      ...cached,
+      marker: `cached-${index}`
+    }));
+    const candidate = { ...score, marker: 'candidate' };
+    pool.push(candidate);
+    pool.sort(compareByScore);
+    const index = pool.findIndex(item => item.marker === 'candidate');
+    return {
+      rank: index >= 0 ? index + 1 : null,
+      withinTopTen: index >= 0 && index < 10
+    };
+  }, [topTenCache]);
 
   const applyLeaderboard = useCallback((entries: LeaderboardEntry[]) => {
     const visibleEntries = entries.filter(entry => entry.playerName);
     setLeaderboard(visibleEntries.map((entry, idx) => ({ ...entry, rank: idx + 1 })));
-  }, []);
+    syncCacheFromEntries(visibleEntries);
+  }, [syncCacheFromEntries]);
 
   const loadInitialLeaderboard = useCallback(async () => {
     if (!isLeaderboardConfigured) return;
@@ -114,6 +168,13 @@ export const useLeaderboard = (): UseLeaderboardResult => {
     async ({ levelReached, totalMoves, playerName, isHuman: isHumanFlag }: RecordProgressArgs) => {
       if (!sessionId) return null;
 
+      const cachedScore: CachedScore = { levelReached, totalMoves };
+      const localRankInfo = computeLocalRank(cachedScore);
+      const suppliedName = typeof playerName === 'string' && playerName.trim().length > 0;
+
+      let outcomeEntry: LeaderboardEntry | null = null;
+      let resolvedRank = localRankInfo.rank ?? null;
+
       const result = await updateScore({
         sessionId,
         levelReached,
@@ -122,33 +183,45 @@ export const useLeaderboard = (): UseLeaderboardResult => {
         isHuman: isHumanFlag
       });
 
-      if (!result) return null;
+      if (result) {
+        applyLeaderboard(result.leaderboard);
 
-      applyLeaderboard(result.leaderboard);
+        const { entry, rank } = mapSessionEntry(sessionId, result, result.leaderboard);
+        outcomeEntry = entry && rank && rank > 0 ? { ...entry, rank } : entry;
+        if (rank && rank > 0) {
+          resolvedRank = rank;
+        }
 
-      const { entry, rank } = mapSessionEntry(sessionId, result, result.leaderboard);
+        if (!suppliedName && entry?.playerName) {
+          setHasSubmittedName(true);
+        }
+
+        if (typeof entry?.isHuman === 'boolean') {
+          setIsHuman(entry.isHuman);
+        }
+      }
+
+      mergeScoreIntoCache(cachedScore);
 
       if (typeof isHumanFlag === 'boolean') {
         setIsHuman(isHumanFlag);
       }
 
-      if (playerName) {
-        setHasSubmittedName(true);
-      } else if (entry?.playerName) {
+      if (suppliedName) {
         setHasSubmittedName(true);
       }
 
       lastReportedRef.current = { levelReached, totalMoves };
 
-      const resolvedRank = rank && rank > 0 ? rank : null;
+      const shouldPromptName = localRankInfo.withinTopTen && !(suppliedName || outcomeEntry?.playerName);
 
       return {
-        entry,
+        entry: outcomeEntry,
         rank: resolvedRank,
-        shouldPromptName: resolvedRank !== null && !(entry?.playerName)
+        shouldPromptName
       } satisfies LeaderboardRecordResult;
     },
-    [applyLeaderboard, sessionId]
+    [applyLeaderboard, computeLocalRank, mergeScoreIntoCache, sessionId]
   );
 
   const submitIdentity = useCallback(

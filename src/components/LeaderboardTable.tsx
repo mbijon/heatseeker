@@ -8,8 +8,8 @@ interface LeaderboardTableProps {
 }
 
 const tableBaseClasses = 'w-full text-left text-sm text-gray-200';
-const headerClasses = 'uppercase tracking-wider text-xs text-gray-400 border-b border-gray-700 pb-2';
-const cellClasses = 'py-2 border-b border-gray-800';
+const headerClasses = 'px-4 py-3 text-sm uppercase tracking-wide text-gray-300 border-b border-gray-700';
+const cellClasses = 'py-2 border-b border-gray-800 text-sm';
 
 const LeaderboardTable = ({
   entries,
@@ -38,7 +38,7 @@ const LeaderboardTable = ({
       <table className={`${tableBaseClasses} font-mono`}>
         <thead className="bg-gray-900/50">
           <tr>
-            <th className={headerClasses}>#</th>
+            <th className={`${headerClasses} pl-6`}>#</th>
             <th className={headerClasses}>Name</th>
             <th className={headerClasses}>Type</th>
             <th className={headerClasses}>Level</th>
@@ -68,7 +68,7 @@ const LeaderboardTable = ({
                         : 'text-gray-200'
                     }
                   >
-                    <td className={`${cellClasses} pr-4`}>#{entry.rank}</td>
+                    <td className={`${cellClasses} pl-6 pr-4`}>#{entry.rank}</td>
                     <td className={`${cellClasses} pr-4`}>{entry.playerName}</td>
                     <td className={`${cellClasses} pr-4`}>{typeLabel}</td>
                     <td className={`${cellClasses} pr-4`}>{entry.levelReached}</td>

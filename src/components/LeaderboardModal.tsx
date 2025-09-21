@@ -13,7 +13,7 @@ const LeaderboardModal = ({
   isOpen,
   isSaving,
   defaultName = '',
-  defaultIsHuman = true,
+  defaultIsHuman = false,
   onSubmit,
   onSkip
 }: LeaderboardModalProps) => {
@@ -58,15 +58,17 @@ const LeaderboardModal = ({
             />
           </div>
 
-          <label className="flex items-center space-x-2 text-sm text-gray-200">
-            <input
-              type="checkbox"
-              checked={isHuman}
-              onChange={event => setIsHuman(event.target.checked)}
-              className="h-4 w-4 rounded border-gray-700 bg-gray-800 text-purple-400 focus:ring-purple-500"
-            />
-            <span>Are you human?</span>
-          </label>
+          <div className="mt-5 flex justify-center">
+            <label className="inline-flex items-center space-x-2 text-sm text-gray-200">
+              <input
+                type="checkbox"
+                checked={isHuman}
+                onChange={event => setIsHuman(event.target.checked)}
+                className="h-4 w-4 rounded border-gray-700 bg-gray-800 text-purple-400 focus:ring-purple-500"
+              />
+              <span>Are you human?</span>
+            </label>
+          </div>
 
           <div className="flex justify-end space-x-3 pt-4">
             <button

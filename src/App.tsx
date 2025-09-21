@@ -66,7 +66,7 @@ function Heatseeker() {
 
   const lastKnownRankRef = useRef<number | null>(null);
 
-  const defaultIsHuman = storedIsHuman ?? true;
+  const defaultIsHuman = storedIsHuman ?? false;
 
   const isFinalLevel = currentLevel === FINAL_LEVEL_INDEX;
   const showFinalCelebration = isFinalLevel && (gameState === 'won' || gameState === 'lost');
