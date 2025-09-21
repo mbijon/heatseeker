@@ -50,6 +50,13 @@ const gameLogicMocks = vi.hoisted(() => {
   }
 })
 
+const leaderboardMocks = vi.hoisted(() => ({
+  startNewSession: vi.fn(async () => 'mock-session-id'),
+  recordProgress: vi.fn(async () => ({ entry: null, rank: null, shouldPromptName: false })),
+  submitIdentity: vi.fn(async () => ({ entry: null, rank: null, shouldPromptName: false })),
+  refreshLeaderboard: vi.fn(async () => {})
+}))
+
 // Mock the game logic to make tests deterministic
 vi.mock('../src/gameLogic', () => ({
   levels: [
@@ -64,6 +71,25 @@ vi.mock('../src/gameLogic', () => ({
   getHeatColor: gameLogicMocks.getHeatColorMock
 }))
 
+vi.mock('../src/hooks/useLeaderboard', () => ({
+  __esModule: true,
+  default: () => ({
+    isConfigured: true,
+    isLoading: false,
+    error: null,
+    leaderboard: [],
+    sessionId: 'mock-session-id',
+    playerEntry: null,
+    playerRank: null,
+    hasSubmittedName: false,
+    isHuman: null,
+    startNewSession: leaderboardMocks.startNewSession,
+    recordProgress: leaderboardMocks.recordProgress,
+    submitIdentity: leaderboardMocks.submitIdentity,
+    refreshLeaderboard: leaderboardMocks.refreshLeaderboard
+  })
+}))
+
 const {
   generateLavaSquaresMock,
   calculateHeatMock,
@@ -75,6 +101,10 @@ beforeEach(() => {
   generateLavaSquaresMock.mockReset()
   calculateHeatMock.mockReset()
   getHeatColorMock.mockReset()
+  leaderboardMocks.startNewSession.mockClear()
+  leaderboardMocks.recordProgress.mockClear()
+  leaderboardMocks.submitIdentity.mockClear()
+  leaderboardMocks.refreshLeaderboard.mockClear()
 
   generateLavaSquaresMock.mockImplementation(() => new Set(['5,5', '6,6']))
   calculateHeatMock.mockImplementation((x: number, y: number, lavaSet: LavaSquares): number => {
@@ -102,7 +132,8 @@ describe('Heatseeker Game Component', () => {
       render(<Heatseeker />)
 
       expect(screen.getByText('🔥 HEATSEEKER 🔥')).toBeInTheDocument()
-      expect(screen.getByText('Leaderboard:')).toBeInTheDocument()
+      expect(screen.getByText('Leaderboard')).toBeInTheDocument()
+      expect(screen.getByText(/No ranked runs yet/i)).toBeInTheDocument()
       expect(screen.getByText('Start Game')).toBeInTheDocument()
     })
   })
@@ -116,10 +147,12 @@ describe('Heatseeker Game Component', () => {
       await user.click(startButton)
 
       // Should show game grid and level info
-      expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
-      expect(screen.getByText('Grid: 10x10')).toBeInTheDocument()
-      expect(screen.getByText('Level Moves: 0')).toBeInTheDocument()
-      expect(screen.getByText('Total Moves: 0')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+        expect(screen.getByText('Grid: 10x10')).toBeInTheDocument()
+        expect(screen.getByText('Level Moves: 0')).toBeInTheDocument()
+        expect(screen.getByText('Total Moves: 0')).toBeInTheDocument()
+      })
     })
 
     it('should display mobile controls after starting game', async () => {
@@ -127,6 +160,9 @@ describe('Heatseeker Game Component', () => {
       render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       expect(screen.getByText('↑')).toBeInTheDocument()
       expect(screen.getByText('↓')).toBeInTheDocument()
@@ -140,6 +176,9 @@ describe('Heatseeker Game Component', () => {
       const user = userEvent.setup()
       render(<Heatseeker />)
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
     })
 
     it('should respond to mobile control buttons', async () => {
@@ -182,6 +221,9 @@ describe('Heatseeker Game Component', () => {
       render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       // Look for grid container
       const gridContainer = document.querySelector('[style*="grid-template-columns"]')
@@ -197,6 +239,9 @@ describe('Heatseeker Game Component', () => {
       render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       // Player starts at bottom-left, should have blue ring
       const playerCell = document.querySelector('.ring-blue-400')
@@ -210,6 +255,9 @@ describe('Heatseeker Game Component', () => {
       render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       // Make several moves
       const rightButton = screen.getByText('→')
@@ -229,6 +277,9 @@ describe('Heatseeker Game Component', () => {
       render(<Heatseeker />)
 
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       expect(screen.getByText('Navigate safely through the lava field using heat signatures to detect danger!')).toBeInTheDocument()
     })
@@ -243,6 +294,9 @@ describe('Heatseeker Game Component', () => {
 
       render(<Heatseeker />)
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       await user.click(screen.getByText('→'))
 
@@ -267,6 +321,9 @@ describe('Heatseeker Game Component', () => {
 
       render(<Heatseeker />)
       await user.click(screen.getByText('Start Game'))
+      await waitFor(() => {
+        expect(screen.getByText('Level: 1 of 2')).toBeInTheDocument()
+      })
 
       for (let i = 0; i < 9; i++) {
         await user.keyboard('{ArrowUp}')
@@ -276,6 +333,9 @@ describe('Heatseeker Game Component', () => {
       }
 
       await screen.findByText('🎉 Level Complete! 🎉')
+      await waitFor(() => {
+        expect(screen.getByText('Next Level')).not.toBeDisabled()
+      })
       await user.click(screen.getByText('Next Level'))
       expect(screen.getByText('Level: 2 of 2')).toBeInTheDocument()
 
@@ -286,7 +346,10 @@ describe('Heatseeker Game Component', () => {
         await user.keyboard('{ArrowRight}')
       }
 
-      await screen.findByText('🏆 GAME COMPLETE! 🏆')
+      await screen.findByText("🎉 You have completed all levels! Congratulations!!! 🎉")
+      await waitFor(() => {
+        expect(screen.getByText('Play Again')).not.toBeDisabled()
+      })
       await user.click(screen.getByText('Play Again'))
 
       await waitFor(() => {
