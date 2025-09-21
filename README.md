@@ -95,7 +95,7 @@ npm run test:e2e:report
 
 E2E tests run across multiple browsers (Chrome, Firefox, Safari) and device types (desktop, tablet, mobile).
 
-## Supabase & Database
+## Leaderboard
 
 The leaderboard is backed by the Supabase Postgres database named `prbase`. Supabase credentials for local and remote environments live in `.env.local`; confirm they match project secrets before running database tasks.
 
