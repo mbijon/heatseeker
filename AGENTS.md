@@ -23,8 +23,16 @@ TypeScript `strict` settings in `tsconfig.json` are non-negotiable—treat compi
 
 ## Testing Guidelines
 
-Write unit coverage alongside features. Keep mocks and fixtures in `test/`, using Testing Library patterns (`screen`, `userEvent`). For gameplay shifts, update relevant Playwright specs under `e2e/`; keep them deterministic by reusing exported helpers and seeding predictable boards. Ensure coverage deltas stay positive before requesting review. Always run `npm run test:run` (or the task-specific variant) and `npm run test:e2e` locally before declaring a task complete so regressions are caught early.
+Write unit coverage alongside features. Keep mocks and fixtures in `test/`, using Testing Library patterns (`screen`, `userEvent`). For gameplay shifts, update relevant Playwright specs under `e2e/`; keep them deterministic by reusing exported helpers and seeding predictable boards. Ensure coverage stays even or increases before requesting review.
+
+Always run `npm run test:run` (or the task-specific variant) and `npm run test:e2e` locally before declaring a task complete so regressions are caught early.
+
+Reference related issues or incidents and flag follow-up work so reviewers can plan next steps.
 
 ## Commit & Pull Request Guidelines
 
-Craft concise, imperative commit messages mirroring current history (e.g., `Refactor heat map colors`). Always append commits with the text`-codex`. Pull requests should include: a short summary, affected commands, test evidence (`npm run test:run`, `npm run test:e2e` when touched), and UI screenshots or clips for visual changes. Reference related issues or incidents and flag follow-up work so reviewers can plan next steps.
+Do not perform git operations or commands until you have run tests and confirmed they all pass, or until you have received feedback that all tests pass.
+
+Craft concise, imperative commit messages mirroring current history (e.g., `Refactor heat map colors`). Always append commits with the text`-codex`. Pull requests should include: a short summary, affected commands, test evidence (`npm run test:coverage`, `npm run test:e2e:report` when touched), and UI screenshots or clips for visual changes.
+
+Reference related issues or incidents and flag follow-up work so reviewers can plan next steps.
