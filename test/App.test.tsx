@@ -17,7 +17,7 @@ const gameLogicMocks = vi.hoisted(() => {
     return 0
   })
   const getHeatColorMock = vi.fn((count: number): string =>
-    count === 0 ? 'bg-gray-300' : 'bg-yellow-200'
+    count === 0 ? 'bg-white' : 'bg-yellow-200'
   )
   const isValidMoveMock = vi.fn((pos: Position, direction: string, gridSize: number) => {
     let newX = pos.x
@@ -118,7 +118,7 @@ beforeEach(() => {
     return 0
   })
   getHeatColorMock.mockImplementation((count: number): string =>
-    count === 0 ? 'bg-gray-300' : 'bg-yellow-200'
+    count === 0 ? 'bg-white' : 'bg-yellow-200'
   )
 })
 

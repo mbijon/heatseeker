@@ -16,15 +16,15 @@ Navigate from bottom-left to top-right corner to complete each level.
 
 * Use arrow keys to move, but AVOID landing on a lava square
 * Colors show the lava count in bordering squares. Increasing heat (yellow, orange, red) means more lava on the next move:
-  * Light Grey = 0 lava nearby
-  * Light Yellow = 1 lavas nearby
-  * Yellow = 2 lavas nearby
-  * Bright Yellow = 3 lavas nearby
-  * Yellow-Orange = 4 lavas nearby
-  * Orange = 5 lavas nearby
-  * Orange-Red = 6 lavas nearby
-  * Light Red = 7 lavas nearby
-  * Neon Pink = 8 lavas nearby
+* White = 0 lava nearby
+* Light Yellow = 1 lava nearby
+* Bright Yellow = 2 lavas nearby
+* Orange = 3 lavas nearby
+* Orange-Red = 4 lavas nearby
+* Light Red = 5 lavas nearby
+* Dark Red = 6 lavas nearby
+* Purple Red = 7 lavas nearby
+* Neon Pink = 8 lavas nearby
 
 ---
 
@@ -95,7 +95,7 @@ npm run test:e2e:report
 
 E2E tests run across multiple browsers (Chrome, Firefox, Safari) and device types (desktop, tablet, mobile).
 
-## Supabase & Database
+## Leaderboard
 
 The leaderboard is backed by the Supabase Postgres database named `prbase`. Supabase credentials for local and remote environments live in `.env.local`; confirm they match project secrets before running database tasks.
 

@@ -92,15 +92,15 @@ export const isLavaPosition = (pos: Position, lavaSet: LavaSquares): boolean => 
 // Get heat color based on adjacent lava count
 export const getHeatColor = (adjacentLavaCount: number): string => {
   switch (adjacentLavaCount) {
-    case 0: return 'bg-gray-300'; // Light grey
+    case 0: return 'bg-white'; // White
     case 1: return 'bg-yellow-200'; // Light yellow
-    case 2: return 'bg-yellow-300'; // Yellow
-    case 3: return 'bg-yellow-400'; // Bright yellow
-    case 4: return 'bg-yellow-500'; // Light yellow-orange
-    case 5: return 'bg-orange-400'; // Deep yellow-orange
-    case 6: return 'bg-orange-500'; // Light orange-red
-    case 7: return 'bg-red-400'; // Light red
-    case 8: return 'bg-pink-400'; // Neon pink
+    case 2: return 'bg-yellow-300'; // Bright yellow
+    case 3: return 'bg-orange-400'; // Orange
+    case 4: return 'bg-orange-500'; // Orange-red
+    case 5: return 'bg-red-300'; // Light red
+    case 6: return 'bg-red-600'; // Dark red
+    case 7: return 'bg-rose-600'; // Purple red
+    case 8: return 'bg-pink-500'; // Neon pink
     default: return 'bg-white';
   }
 };
