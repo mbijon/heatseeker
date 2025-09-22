@@ -14,7 +14,7 @@ Designed as an [ARC-AGI-3 Challenge](https://arcprize.org/arc-agi/3/) game to te
 
 ### ChatGPT
 
-[ChatGPT-5 computer use achieved level 3.](./docs/computer_use/claude4.md)
+[ChatGPT-5 computer use achieved level 3.](./docs/computer_use/chatgpt-5.md)
 
 ### Claude
 
