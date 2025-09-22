@@ -10,6 +10,20 @@ Designed as an [ARC-AGI-3 Challenge](https://arcprize.org/arc-agi/3/) game to te
 ![Heatseeker game play, level win :smiley:](./docs/assets/heatseeker%20gameplay%20screen%20-%20level%20complete.png)
 ![Heatseeker game play, found the lava :anguished:](./docs/assets/heatseeker%20gameplay%20screen%20-%20game%20over.png)
 
+## Computer Use Results
+
+### ChatGPT
+
+[ChatGPT-5 computer use achieved level 3.](./docs/computer_use/claude4.md)
+
+### Claude
+
+[Claude Opus 4.1 doesn't include computer use by default, and refused to help with coding it's own API](./docs/computer_use/claude4.md). When asked to generate python code for the Claude API with computer use enabled, Claude Opus 4.1 told me:
+
+> Claude API Limitation: The Claude API (which I am) provides text generation and reasoning, not browser control or GUI interaction capabilities. There's no "computer interaction API" from Claude/Anthropic.
+
+---
+
 ## Gameplay Rules
 
 Navigate from bottom-left to top-right corner to complete each level.
