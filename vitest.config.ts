@@ -9,5 +9,8 @@ export default defineConfig({
     setupFiles: './test/setup.ts',
     include: ['test/**/*.{test,spec}.{js,jsx,ts,tsx}'],
     exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
+    coverage: {
+      exclude: ['playwright.config.ts', 'vitest.config.ts', 'e2e/**', 'dist/**']
+    }
   }
 })

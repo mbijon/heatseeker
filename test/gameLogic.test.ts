@@ -196,15 +196,15 @@ describe('Game Logic', () => {
 
   describe('getHeatColor', () => {
     it('should return correct colors for each heat level', () => {
-      expect(getHeatColor(0)).toBe('bg-gray-300')
+      expect(getHeatColor(0)).toBe('bg-white')
       expect(getHeatColor(1)).toBe('bg-yellow-200')
       expect(getHeatColor(2)).toBe('bg-yellow-300')
-      expect(getHeatColor(3)).toBe('bg-yellow-400')
-      expect(getHeatColor(4)).toBe('bg-yellow-500')
-      expect(getHeatColor(5)).toBe('bg-orange-400')
-      expect(getHeatColor(6)).toBe('bg-orange-500')
-      expect(getHeatColor(7)).toBe('bg-red-400')
-      expect(getHeatColor(8)).toBe('bg-pink-400')
+      expect(getHeatColor(3)).toBe('bg-orange-400')
+      expect(getHeatColor(4)).toBe('bg-orange-500')
+      expect(getHeatColor(5)).toBe('bg-red-300')
+      expect(getHeatColor(6)).toBe('bg-red-600')
+      expect(getHeatColor(7)).toBe('bg-rose-600')
+      expect(getHeatColor(8)).toBe('bg-pink-500')
     })
 
     it('should handle invalid heat levels', () => {
