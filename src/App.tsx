@@ -403,9 +403,10 @@ function Heatseeker() {
 
   if (!gameStarted) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-8 text-white">
-        <h1 className="mb-8 text-center text-4xl font-bold">🔥 HEATSEEKER 🔥</h1>
-        <div className="w-full max-w-3xl rounded-lg bg-gray-800 p-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white lg:p-8">
+        <div className="flex flex-col items-center justify-center" id="subroot">
+          <h1 className="mb-8 text-center text-4xl font-bold">🔥 HEATSEEKER 🔥</h1>
+        <div className="w-full max-w-3xl rounded-lg bg-gray-800 p-3 lg:p-6">
           <div>
             <h2 className="mb-4 text-xl font-semibold">Don't step in lava!</h2>
             <p className="text-sm text-gray-300">
@@ -439,12 +440,14 @@ function Heatseeker() {
             )}
           </div>
         </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4 text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white lg:p-4">
+      <div className="flex w-full max-w-5xl flex-col items-center justify-center px-4" id="subroot">
       <h1 className="mb-2 text-center text-3xl font-bold">🔥 HEATSEEKER 🔥</h1>
       <div className="text-center text-sm">
         <div className="space-x-4">
@@ -529,11 +532,11 @@ function Heatseeker() {
               </div>
               <p className="mt-2 text-xs text-gray-400">Tap buttons or use keyboard arrow keys</p>
             </div>
-            <div className="flex min-w-[9rem] flex-col items-end text-right sm:min-w-[10rem] sm:items-center sm:text-center" data-testid="bailout-panel">
+            <div className="flex min-w-[9rem] flex-col items-start text-left sm:min-w-[10rem] sm:items-start sm:text-left" data-testid="bailout-panel">
               <p className="mb-2 text-sm text-gray-200 whitespace-nowrap">Getting too hot?</p>
               <button
                 onClick={handleBailout}
-                className="rounded-lg bg-orange-600 px-6 py-3 text-base font-bold text-white transition hover:bg-orange-500 disabled:opacity-60 sm:px-4 sm:py-2 sm:text-sm sm:font-semibold"
+                className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-500 disabled:opacity-60"
                 disabled={isEvaluatingLeaderboard || showNameModal}
               >
                 Bailout
@@ -577,7 +580,7 @@ function Heatseeker() {
               disabled={isEvaluatingLeaderboard || showNameModal}
               className="rounded bg-green-600 px-4 py-2 font-bold text-white transition hover:bg-green-700 disabled:opacity-60"
             >
-              Next Level
+              Next Levelgit add <div className=""></div>
             </button>
           </div>
         ) : gameState === 'lost' ? (
@@ -616,6 +619,7 @@ function Heatseeker() {
         }}
         onSkip={handleNameSkip}
       />
+      </div>
     </div>
   );
 }
