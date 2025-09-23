@@ -7,6 +7,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './test/setup.ts',
+    // Run tests sequentially to avoid database conflicts
+    sequence: {
+      concurrent: false,
+    },
     include: ['test/**/*.{test,spec}.{js,jsx,ts,tsx}'],
     exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
     coverage: {

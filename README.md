@@ -109,9 +109,18 @@ npm run test:e2e:report
 
 E2E tests run across multiple browsers (Chrome, Firefox, Safari) and device types (desktop, tablet, mobile).
 
+## Responsive Breakpoints
+
+* Base `<640px` (mobile portrait): primary target for scaling grid/cell size; covers iPhone SE/8/X and similar compact Android devices. Grid may enable internal scroll while Move controls stay anchored.
+* `sm` ≥640px: larger phones in landscape and small tablets; maintains scaled grid while restoring horizontal control layouts.
+* `md` ≥768px: tablets in portrait/landscape such as iPad Mini/Air; gameplay grid approaches desktop sizing.
+* `lg` ≥1024px: laptop-width viewports; grid reaches full desktop dimensions with generous control spacing.
+* `xl` ≥1280px: widescreen desktops/monitors; matches existing desktop layout without additional scaling.
+* `2xl` ≥1536px: very wide monitors/TVs; no additional changes planned beyond standard Tailwind defaults.
+
 ## Leaderboard
 
-The leaderboard is backed by the Supabase Postgres database named `prbase`. Supabase credentials for local and remote environments live in `.env.local`; confirm they match project secrets before running database tasks.
+The leaderboard is backed by the Supabase Postgres database. Supabase credentials for local and remote environments live in `.env.local`; confirm they match project secrets before running database tasks.
 
 ### Common Supabase Commands
 
