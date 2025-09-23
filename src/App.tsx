@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import {
   levels,
   calculateHeat,
@@ -15,6 +16,7 @@ import type {
 import useLeaderboard from './hooks/useLeaderboard';
 import LeaderboardTable from './components/LeaderboardTable';
 import LeaderboardModal from './components/LeaderboardModal';
+import useViewportSize from './hooks/useViewportSize';
 
 const FINAL_LEVEL_INDEX = levels.length - 1;
 
@@ -331,18 +333,80 @@ function Heatseeker() {
     return playerEntry?.playerName ? playerEntry.sessionId : null;
   }, [playerEntry]);
 
+  const { width: viewportWidth, height: viewportHeight } = useViewportSize();
+
   const level = levels[currentLevel];
   const maxGridWidth = 720; // matches start screen container width (max-w-3xl)
   const maxCellSize = 30;
-  const minCellSize = 4;
-  const rawCellSize = Math.floor(Math.min(maxCellSize, maxGridWidth / level.size));
-  const cellSize = Math.max(minCellSize, rawCellSize);
+
+  const {
+    cellSize,
+    gridMaxWidth,
+    gridMaxHeight,
+    isSmallScreen,
+    isCompactMobile
+  } = useMemo(() => {
+    const safeWidth = viewportWidth || maxGridWidth;
+    const safeHeight = viewportHeight || maxGridWidth;
+    const smallScreen = safeWidth < 640;
+    const compact = safeWidth <= 380;
+    const widthPadding = smallScreen ? (compact ? 20 : 32) : 0;
+    const heightAllowance = smallScreen ? 260 : 320; // reserve space for UI chrome
+
+    const maxWidthLimit = Math.max(160, Math.min(maxGridWidth, safeWidth - widthPadding));
+    const maxHeightLimit = Math.max(160, Math.min(maxGridWidth, safeHeight - heightAllowance));
+
+    const candidateCell = Math.floor(
+      Math.min(maxCellSize, maxWidthLimit / level.size, maxHeightLimit / level.size)
+    );
+
+    const minCellSize = smallScreen ? 2 : 4;
+    const resolvedCell = Math.max(minCellSize, candidateCell);
+
+    return {
+      cellSize: resolvedCell,
+      gridMaxWidth: maxWidthLimit,
+      gridMaxHeight: maxHeightLimit,
+      isSmallScreen: smallScreen,
+      isCompactMobile: compact
+    };
+  }, [level.size, maxCellSize, maxGridWidth, viewportHeight, viewportWidth]);
+
+  const gridWidth = cellSize * level.size;
+  const gridClassName = [
+    'grid gap-0 rounded-lg border-2 border-gray-600 bg-gray-800',
+    isCompactMobile ? 'max-h-[65vh] overflow-y-auto' : '',
+    'lg:mt-4',
+    'lg:p-2'
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const gridStyle = useMemo<CSSProperties>(() => {
+    const style: CSSProperties = {
+      gridTemplateColumns: `repeat(${level.size}, ${cellSize}px)`
+    };
+
+    if (isSmallScreen) {
+      style.width = `${gridWidth}px`;
+      style.maxWidth = `${gridMaxWidth}px`;
+    } else {
+      style.width = 'fit-content';
+    }
+
+    if (isCompactMobile) {
+      style.maxHeight = `${gridMaxHeight}px`;
+    }
+
+    return style;
+  }, [cellSize, gridMaxHeight, gridMaxWidth, gridWidth, isCompactMobile, isSmallScreen, level.size]);
 
   if (!gameStarted) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-8 text-white">
-        <h1 className="mb-8 text-center text-4xl font-bold">🔥 HEATSEEKER 🔥</h1>
-        <div className="w-full max-w-3xl rounded-lg bg-gray-800 p-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white lg:p-8">
+        <div className="flex flex-col items-center justify-center" id="subroot">
+          <h1 className="mb-8 text-center text-4xl font-bold">🔥 HEATSEEKER 🔥</h1>
+        <div className="w-full max-w-3xl rounded-lg bg-gray-800 p-3 lg:p-6">
           <div>
             <h2 className="mb-4 text-xl font-semibold">Don't step in lava!</h2>
             <p className="text-sm text-gray-300">
@@ -376,12 +440,14 @@ function Heatseeker() {
             )}
           </div>
         </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4 text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white lg:p-4">
+      <div className="flex w-full max-w-5xl flex-col items-center justify-center px-4" id="subroot">
       <h1 className="mb-2 text-center text-3xl font-bold">🔥 HEATSEEKER 🔥</h1>
       <div className="text-center text-sm">
         <div className="space-x-4">
@@ -395,11 +461,9 @@ function Heatseeker() {
       </div>
 
       <div
-        className="mt-4 grid gap-0 rounded-lg border-2 border-gray-600 bg-gray-800 p-2"
-        style={{
-          gridTemplateColumns: `repeat(${level.size}, ${cellSize}px)`,
-          width: 'fit-content'
-        }}
+        data-testid="game-grid"
+        className={gridClassName}
+        style={gridStyle}
       >
         {Array.from({ length: level.size }, (_, y) => (
           Array.from({ length: level.size }, (_, x) => {
@@ -413,8 +477,8 @@ function Heatseeker() {
                 style={{
                   width: `${cellSize}px`,
                   height: `${cellSize}px`,
-                  minWidth: '4px',
-                  minHeight: '4px'
+                  minWidth: '2px',
+                  minHeight: '2px'
                 }}
               />
             );
@@ -422,15 +486,18 @@ function Heatseeker() {
         ))}
       </div>
 
-      <div className="mt-4 flex flex-col items-center">
+      <div className="mt-4 flex w-full max-w-3xl flex-col items-stretch">
         {gameState === 'playing' && (
-          <div className="mb-4 flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-            <div className="flex flex-col items-center">
-              <div className="grid w-48 grid-cols-3 gap-2">
+          <div
+            className="mb-4 flex w-full max-w-md flex-row items-start justify-between gap-4 self-stretch sm:self-center sm:max-w-2xl sm:justify-center sm:gap-6"
+            data-testid="move-controls"
+          >
+            <div className="flex flex-col items-start sm:items-center">
+              <div className="grid w-36 grid-cols-3 gap-1 self-end sm:w-48 sm:gap-2 sm:self-center" data-testid="direction-pad">
                 <div />
                 <button
                   onClick={() => movePlayer('up')}
-                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  className="rounded-lg bg-blue-600 px-3 py-2 text-base font-bold text-white transition hover:bg-blue-700 active:bg-blue-800 sm:px-4 sm:py-3 sm:text-xl"
                   disabled={gameState !== 'playing'}
                 >
                   ↑
@@ -439,7 +506,7 @@ function Heatseeker() {
 
                 <button
                   onClick={() => movePlayer('left')}
-                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  className="rounded-lg bg-blue-600 px-3 py-2 text-base font-bold text-white transition hover:bg-blue-700 active:bg-blue-800 sm:px-4 sm:py-3 sm:text-xl"
                   disabled={gameState !== 'playing'}
                 >
                   ←
@@ -447,7 +514,7 @@ function Heatseeker() {
                 <div className="flex items-center justify-center text-sm text-gray-400">Move</div>
                 <button
                   onClick={() => movePlayer('right')}
-                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  className="rounded-lg bg-blue-600 px-3 py-2 text-base font-bold text-white transition hover:bg-blue-700 active:bg-blue-800 sm:px-4 sm:py-3 sm:text-xl"
                   disabled={gameState !== 'playing'}
                 >
                   →
@@ -456,7 +523,7 @@ function Heatseeker() {
                 <div />
                 <button
                   onClick={() => movePlayer('down')}
-                  className="rounded-lg bg-blue-600 px-4 py-3 text-xl font-bold text-white transition hover:bg-blue-700 active:bg-blue-800"
+                  className="rounded-lg bg-blue-600 px-3 py-2 text-base font-bold text-white transition hover:bg-blue-700 active:bg-blue-800 sm:px-4 sm:py-3 sm:text-xl"
                   disabled={gameState !== 'playing'}
                 >
                   ↓
@@ -465,8 +532,8 @@ function Heatseeker() {
               </div>
               <p className="mt-2 text-xs text-gray-400">Tap buttons or use keyboard arrow keys</p>
             </div>
-            <div className="flex flex-col items-center text-center">
-              <p className="mb-2 text-sm text-gray-200">Getting too hot?</p>
+            <div className="flex min-w-[9rem] flex-col items-start text-left sm:min-w-[10rem] sm:items-start sm:text-left" data-testid="bailout-panel">
+              <p className="mb-2 text-sm text-gray-200 whitespace-nowrap">Getting too hot?</p>
               <button
                 onClick={handleBailout}
                 className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-500 disabled:opacity-60"
@@ -552,6 +619,7 @@ function Heatseeker() {
         }}
         onSkip={handleNameSkip}
       />
+      </div>
     </div>
   );
 }
