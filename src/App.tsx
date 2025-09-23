@@ -580,7 +580,7 @@ function Heatseeker() {
               disabled={isEvaluatingLeaderboard || showNameModal}
               className="rounded bg-green-600 px-4 py-2 font-bold text-white transition hover:bg-green-700 disabled:opacity-60"
             >
-              Next Levelgit add <div className=""></div>
+              Next Level
             </button>
           </div>
         ) : gameState === 'lost' ? (
