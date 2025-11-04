@@ -40,12 +40,13 @@ COPY src/ ./src/
 # Create virtual environment and install dependencies
 RUN uv venv && \
     . .venv/bin/activate && \
-    uv pip install -e . && \
-    uv pip install playwright && \
+    uv pip install anthropic playwright pillow pydantic && \
+    uv pip install pytest pytest-asyncio pytest-mock --no-deps || true && \
     playwright install chromium
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app:$PYTHONPATH"
 ENV PYTHONUNBUFFERED=1
 
 # Default command
