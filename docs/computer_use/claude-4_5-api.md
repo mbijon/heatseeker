@@ -5,6 +5,7 @@
 This directory contains an implementation of Anthropic's Claude 4.5 Sonnet with computer use capabilities to autonomously play the Heatseeker game.
 
 The agent uses Claude's computer vision and tool use features to:
+
 - Take screenshots of the game
 - Learn game mechanics through gameplay
 - Execute mouse clicks, keyboard inputs, and scrolling
@@ -21,12 +22,14 @@ The implementation is located in `/models/claude/` and consists of:
 ## Prerequisites
 
 ### System Requirements
-- Python 3.11+
+
+- Python 3.10+
 - `uv` package manager (see [https://docs.astral.sh/uv/](https://docs.astral.sh/uv/))
 - Docker (for containerized execution)
 - Git
 
 ### Required API Keys
+
 - **ANTHROPIC_API_KEY**: Your Anthropic API key for Claude 4.5 Sonnet access
 
 ## Installation and Setup
@@ -34,50 +37,51 @@ The implementation is located in `/models/claude/` and consists of:
 ### Option 1: Local Installation with uv
 
 1. **Install uv** (if not already installed):
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
 
-2. **Navigate to the Claude models directory**:
-   ```bash
-   cd /path/to/heatseeker/models/claude
-   ```
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-3. **Create a virtual environment and install dependencies**:
-   ```bash
-   uv venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   uv sync
-   ```
+1. **Navigate to the Claude models directory**:
 
-4. **Set up environment variables**:
-   ```bash
-   export ANTHROPIC_API_KEY="your-api-key-here"
-   ```
+```bash
+cd /path/to/heatseeker/models/claude
+```
 
-5. **Run the agent**:
-   ```bash
-   python -m src.agent
-   ```
+1. **Create a virtual environment and install dependencies**:
+
+```bash
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv sync
+```
+
+1. **Set up environment variables**:
+
+```bash
+export ANTHROPIC_API_KEY="your-api-key-here"
+```
+
+1. **Run the agent**:
+
+```bash
+python -m src.agent
+```
 
 ### Option 2: Docker Container
 
 1. **Build the Docker image**:
-   ```bash
-   docker build -f Dockerfile -t heatseeker-claude-computer-use .
-   ```
 
-2. **Run the container**:
-   ```bash
-   docker run -e ANTHROPIC_API_KEY="your-api-key-here" \
-     heatseeker-claude-computer-use
-   ```
+```bash
+docker build -f Dockerfile -t heatseeker-claude-computer-use .
+```
 
-3. **View VNC output** (optional, for visual monitoring):
-   ```
-   The agent runs with VNC server enabled on port 5900 (or 6080)
-   Connect with: vnc://localhost:5900
-   ```
+1. **Run the container**:
+
+```bash
+docker run -e ANTHROPIC_API_KEY="your-api-key-here" \
+  heatseeker-claude-computer-use
+```
 
 ## Configuration
 
@@ -99,6 +103,7 @@ python -m src.agent
 ```
 
 The agent will:
+
 1. Initialize with the game URL
 2. Take screenshots to understand the current state
 3. Use Claude to analyze screenshots and determine actions
@@ -119,13 +124,15 @@ agent.run(
 ### Monitoring Progress
 
 The agent outputs:
+
 - Iteration count and timing
 - Claude's response analysis
 - Tool use actions executed
 - Final status upon completion
 
 Example output:
-```
+
+```text
 Starting agent loop with prompt: I would like you to learn to play this game...
 Max iterations: 100
 
@@ -179,20 +186,24 @@ class ComputerUseAgent:
 #### Methods
 
 **`__init__(api_key, max_iterations)`**
+
 - Initializes the agent with API credentials
 - `api_key`: Anthropic API key (uses ANTHROPIC_API_KEY env var if None)
 - `max_iterations`: Maximum loops before stopping
 
 **`run(initial_prompt, url)`**
+
 - Executes the agent loop
 - Returns dict with `status`, `iterations`, and `conversation_history`
 - Statuses: `"completed"`, `"max_iterations_reached"`, `"error"`
 
 **`take_screenshot(url)`**
+
 - Captures a screenshot of the game using Playwright
 - Returns base64-encoded PNG image
 
 **`process_tool_use(tool_use, url)`**
+
 - Executes Claude's tool use requests
 - Supports actions: `screenshot`, `click`, `type`, `key`, `scroll`
 
@@ -209,32 +220,42 @@ class ComputerUseAgent:
 ## Troubleshooting
 
 ### Import Errors
-```
+
+```bash
 ModuleNotFoundError: No module named 'playwright'
 ```
+
 Solution: Install extra dependencies:
+
 ```bash
 uv pip install playwright
 playwright install
 ```
 
 ### API Key Issues
-```
+
+```bash
 ValueError: ANTHROPIC_API_KEY environment variable is required
 ```
+
 Solution: Set your API key:
+
 ```bash
 export ANTHROPIC_API_KEY="sk-..."
 ```
 
 ### Playwright Browser Issues
+
 The agent will automatically launch a Chromium browser for screenshots. If you get browser-related errors:
+
 ```bash
 playwright install chromium
 ```
 
 ### Rate Limiting
+
 If you encounter rate limit errors, increase the delay between iterations in `agent.py`:
+
 ```python
 time.sleep(2)  # Increase from 1 to 2 seconds
 ```
@@ -249,15 +270,10 @@ time.sleep(2)  # Increase from 1 to 2 seconds
 ## Docker Notes
 
 The Dockerfile includes:
-- Python 3.11+ environment
-- All system dependencies for browser automation
-- VNC server for remote visualization
-- Automated script to run the agent
 
-Build arguments:
-```bash
-docker build --build-arg ANTHROPIC_API_KEY="your-key" .
-```
+- Python 3.10+ environment
+- All system dependencies for browser automation
+- Automated script to run the agent
 
 ## References
 
@@ -269,6 +285,7 @@ docker build --build-arg ANTHROPIC_API_KEY="your-key" .
 ## Support
 
 For issues or questions:
+
 1. Check the [Troubleshooting](#troubleshooting) section
 2. Review the test cases in `tests/test_agent.py`
 3. Check the Anthropic documentation links above
