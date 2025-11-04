@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  claude-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HEADLESS=${HEADLESS:-false}
+    volumes:
+      # Mount for potential output/logs
+      - ./logs:/app/logs
+    # Run with display for browser (requires X11 forwarding or headless mode)
+    # For headless mode, set HEADLESS=true
+    stdin_open: true
+    tty: true
+    # Note: For GUI mode, you may need to add:
+    # network_mode: host
+    # and set up X11 forwarding
+
