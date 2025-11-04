@@ -10,12 +10,18 @@ This is the Claude computer use implementation for the Heatseeker game. The agen
 # Install uv if needed
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Navigate to project directory
+cd models/claude
+
 # Set up virtual environment
 uv venv
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
-uv sync
+pip install -e .
+
+# Install Playwright browsers
+python -m playwright install chromium
 
 # Set API key
 export ANTHROPIC_API_KEY="your-key-here"

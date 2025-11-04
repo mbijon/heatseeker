@@ -22,6 +22,21 @@ class TestComputerUseAgent(unittest.TestCase):
         self.assertEqual(self.agent.iteration_count, 0)
         self.assertEqual(len(self.agent.conversation_history), 0)
 
+    @patch("src.agent.anthropic.Anthropic")
+    def test_agent_initializes_with_beta_header(self, mock_anthropic_class):
+        """Test that agent initializes client with correct beta header."""
+        mock_client = MagicMock()
+        mock_anthropic_class.return_value = mock_client
+
+        agent = ComputerUseAgent(api_key="test-key")
+
+        # Verify Anthropic client was initialized with the correct parameters
+        mock_anthropic_class.assert_called_once()
+        call_kwargs = mock_anthropic_class.call_args[1]
+        self.assertEqual(call_kwargs["api_key"], "test-key")
+        self.assertIn("default_headers", call_kwargs)
+        self.assertEqual(call_kwargs["default_headers"]["anthropic-beta"], COMPUTER_USE_BETA)
+
     def test_create_screenshot_content_block(self):
         """Test creation of screenshot content block."""
         test_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="

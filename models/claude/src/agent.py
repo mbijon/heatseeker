@@ -36,7 +36,10 @@ class ComputerUseAgent:
             api_key: Anthropic API key. If None, will use ANTHROPIC_API_KEY env var.
             max_iterations: Maximum number of iterations before stopping.
         """
-        self.client = anthropic.Anthropic(api_key=api_key)
+        self.client = anthropic.Anthropic(
+            api_key=api_key,
+            default_headers={"anthropic-beta": COMPUTER_USE_BETA}
+        )
         self.max_iterations = max_iterations
         self.iteration_count = 0
         self.conversation_history: list[dict] = []
@@ -233,7 +236,6 @@ class ComputerUseAgent:
                     max_tokens=4096,
                     tools=tools,
                     messages=messages,
-                    betas=[COMPUTER_USE_BETA],
                 )
 
                 print(f"Response stop_reason: {response.stop_reason}")
