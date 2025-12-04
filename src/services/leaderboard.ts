@@ -1,4 +1,5 @@
 import type { LeaderboardEntry } from './leaderboardTypes';
+import { logger } from '../utils/logger';
 
 export interface LeaderboardApiEntry {
   session_id: string;
@@ -162,7 +163,9 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
     const sorted = entries.map((entry, idx) => normalizeEntry(entry, idx));
     return sorted.filter(entry => entry.playerName);
   } catch (error) {
-    console.error('Failed to fetch leaderboard:', error);
+    logger.error('Failed to fetch leaderboard', error, {
+      functionName: 'fetchLeaderboard'
+    });
     return [];
   }
 }
@@ -180,7 +183,9 @@ export async function startSession(userAgent: string): Promise<string | null> {
     );
     return response.sessionId;
   } catch (error) {
-    console.error('Failed to start leaderboard session:', error);
+    logger.error('Failed to start leaderboard session', error, {
+      functionName: 'startSession'
+    });
     return null;
   }
 }
@@ -225,7 +230,10 @@ export async function updateScore(payload: UpdateScorePayload): Promise<UpdateSc
       sessionEntry
     };
   } catch (error) {
-    console.error('Failed to update leaderboard score:', error);
+    logger.error('Failed to update leaderboard score', error, {
+      functionName: 'updateScore',
+      sessionId: payload.sessionId
+    });
     return null;
   }
 }

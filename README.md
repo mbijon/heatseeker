@@ -144,3 +144,82 @@ supabase functions deploy leaderboard
 ```
 
 Whenever you change migrations or edge functions, push the code and redeploy (`supabase db push` followed by the appropriate `supabase functions deploy ...`) so the `prbase` database and functions stay synchronized with the repository.
+
+---
+
+## TODO / Future Improvements
+
+### Error Monitoring & Logging
+
+**Current Implementation:**
+- ✅ Environment-aware logger utility (`src/utils/logger.ts`)
+- ✅ Vercel Analytics integrated for performance tracking
+- ✅ Console logging restricted to development environment only
+- ✅ Production errors are silent (no console exposure)
+
+**Planned Migration to Sentry:**
+
+The current logger wrapper is designed for easy migration to Sentry. When ready:
+
+1. **Install Sentry:**
+   ```bash
+   npm install @sentry/react
+   ```
+
+2. **Initialize Sentry** in `src/main.tsx`:
+   ```typescript
+   import * as Sentry from "@sentry/react";
+
+   Sentry.init({
+     dsn: import.meta.env.VITE_SENTRY_DSN,
+     environment: import.meta.env.MODE,
+     enabled: import.meta.env.PROD,
+     integrations: [
+       Sentry.browserTracingIntegration(),
+       Sentry.replayIntegration(),
+     ],
+     tracesSampleRate: 0.1,
+     replaysSessionSampleRate: 0.1,
+     replaysOnErrorSampleRate: 1.0,
+   });
+   ```
+
+3. **Update Logger** (`src/utils/logger.ts`):
+   ```typescript
+   // Replace production branches with:
+   import * as Sentry from "@sentry/react";
+
+   error: (message: string, error?: Error | unknown, context?: LogContext): void => {
+     if (import.meta.env.DEV) {
+       console.error(`[Error] ${message}`, error, context);
+     } else {
+       Sentry.captureException(error, {
+         tags: { context: context?.functionName || 'unknown' },
+         extra: context
+       });
+     }
+   }
+   ```
+
+4. **Add Environment Variable:**
+   ```bash
+   # .env.local
+   VITE_SENTRY_DSN=your_sentry_dsn_here
+   ```
+
+**Benefits of Sentry:**
+- Stack traces with source maps
+- Error grouping and deduplication
+- Session replay (see what user did before error)
+- Performance monitoring
+- Release tracking
+- User context and breadcrumbs
+- Free tier: 5,000 errors/month
+
+**Why Migrate:**
+- Vercel Analytics tracks performance/web vitals, not application errors
+- Sentry provides comprehensive error tracking and debugging tools
+- Industry standard with excellent React integration
+- Essential for production debugging and monitoring
+
+**Timeline:** Migrate when error visibility becomes critical for debugging production issues or when the free tier traffic threshold is reached.

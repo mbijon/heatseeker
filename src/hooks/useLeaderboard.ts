@@ -7,6 +7,7 @@ import {
   type UpdateScoreResult
 } from '../services/leaderboard';
 import type { LeaderboardEntry, LeaderboardRecordResult } from '../services/leaderboardTypes';
+import { logger } from '../utils/logger';
 
 interface RecordProgressArgs {
   levelReached: number;
@@ -135,7 +136,10 @@ export const useLeaderboard = (): UseLeaderboardResult => {
       applyLeaderboard(entries);
       setError(null);
     } catch (err) {
-      console.error(err);
+      logger.error('Failed to load initial leaderboard', err, {
+        hookName: 'useLeaderboard',
+        functionName: 'loadInitialLeaderboard'
+      });
       setError('Unable to load leaderboard');
     } finally {
       setIsLoading(false);
@@ -158,7 +162,10 @@ export const useLeaderboard = (): UseLeaderboardResult => {
       }
       return id;
     } catch (err) {
-      console.error(err);
+      logger.error('Failed to start new session', err, {
+        hookName: 'useLeaderboard',
+        functionName: 'startNewSession'
+      });
       setError('Unable to start leaderboard session');
       return null;
     }
@@ -259,7 +266,10 @@ export const useLeaderboard = (): UseLeaderboardResult => {
       const entries = await fetchLeaderboard();
       applyLeaderboard(entries);
     } catch (err) {
-      console.error('Failed to refresh leaderboard', err);
+      logger.error('Failed to refresh leaderboard', err, {
+        hookName: 'useLeaderboard',
+        functionName: 'refreshLeaderboard'
+      });
     }
   }, [applyLeaderboard]);
 
