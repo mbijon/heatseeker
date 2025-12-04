@@ -43,33 +43,101 @@ const buildFunctionUrl = (functionName: string): string | null => {
   return `${SUPABASE_URL}/functions/v1/${functionName}`;
 };
 
+/**
+ * Retry a function with exponential backoff
+ * @param fn Function to retry
+ * @param maxRetries Maximum number of retry attempts (default: 3)
+ * @param baseDelay Base delay in milliseconds (default: 1000)
+ * @returns Result of the function
+ */
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  let lastError: Error | unknown;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      // Don't retry on the last attempt
+      if (attempt === maxRetries - 1) {
+        throw error;
+      }
+
+      // Calculate exponential backoff delay: baseDelay * 2^attempt
+      const delay = baseDelay * Math.pow(2, attempt);
+
+      // Add jitter to prevent thundering herd (±20% randomization)
+      const jitter = delay * 0.2 * (Math.random() - 0.5);
+      const delayWithJitter = Math.floor(delay + jitter);
+
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, delayWithJitter));
+    }
+  }
+
+  // This should never be reached due to the throw in the loop
+  throw lastError;
+}
+
+/**
+ * Simple debounce implementation for rate limiting
+ * @param fn Function to debounce
+ * @param delay Delay in milliseconds
+ * @returns Debounced function
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  return function debounced(...args: Parameters<T>) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      fn(...args);
+      timeoutId = null;
+    }, delay);
+  };
+}
+
 async function callSupabaseFunction<T>(
   functionName: string,
   payload?: unknown,
-  init?: RequestInit
+  init?: RequestInit,
+  retries: number = 3
 ): Promise<T> {
   const url = buildFunctionUrl(functionName);
   if (!url || !isLeaderboardConfigured) {
     throw new Error('Supabase environment variables are not configured');
   }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    ...init,
-    headers: {
-      ...DEFAULT_HEADERS,
-      ...AUTH_HEADERS,
-      ...(init?.headers ?? {})
-    },
-    body: payload ? JSON.stringify(payload) : undefined
-  });
+  return fetchWithRetry(async () => {
+    const response = await fetch(url, {
+      method: 'POST',
+      ...init,
+      headers: {
+        ...DEFAULT_HEADERS,
+        ...AUTH_HEADERS,
+        ...(init?.headers ?? {})
+      },
+      body: payload ? JSON.stringify(payload) : undefined
+    });
 
-  if (!response.ok) {
-    const errorMessage = await response.text().catch(() => 'Unknown error');
-    throw new Error(`Supabase function ${functionName} failed: ${errorMessage}`);
-  }
+    if (!response.ok) {
+      const errorMessage = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Supabase function ${functionName} failed: ${errorMessage}`);
+    }
 
-  return response.json() as Promise<T>;
+    return response.json() as Promise<T>;
+  }, retries);
 }
 
 const normalizeEntry = (entry: LeaderboardApiEntry, index: number): LeaderboardEntry => ({
@@ -85,6 +153,7 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
   if (!isLeaderboardConfigured) return [];
 
   try {
+    // Fetch with default retry logic (3 attempts with exponential backoff)
     const entries = await callSupabaseFunction<LeaderboardApiEntry[]>(
       'leaderboard',
       undefined,
@@ -102,9 +171,13 @@ export async function startSession(userAgent: string): Promise<string | null> {
   if (!isLeaderboardConfigured) return null;
 
   try {
-    const response = await callSupabaseFunction<StartSessionResponse>('start-session', {
-      userAgent
-    });
+    // Use fewer retries for session creation to avoid duplicates
+    const response = await callSupabaseFunction<StartSessionResponse>(
+      'start-session',
+      { userAgent },
+      undefined,
+      2
+    );
     return response.sessionId;
   } catch (error) {
     console.error('Failed to start leaderboard session:', error);
@@ -134,6 +207,7 @@ export async function updateScore(payload: UpdateScorePayload): Promise<UpdateSc
   }
 
   try {
+    // Update with retry logic (3 attempts) to ensure score persistence
     const response = await callSupabaseFunction<UpdateScoreResponse>('update-score', payload);
     const rawEntries = response.leaderboard ?? [];
     const normalized = rawEntries.map((entry, idx) => normalizeEntry(entry, idx));
