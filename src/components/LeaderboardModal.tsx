@@ -9,6 +9,16 @@ interface LeaderboardModalProps {
   onSkip: () => void;
 }
 
+/**
+ * Sanitize player name input to only allow safe characters
+ * Allowed: alphanumeric (a-z, A-Z, 0-9), underscores, spaces, and hyphens
+ * @param input Raw input string
+ * @returns Sanitized string with only allowed characters
+ */
+const sanitizeName = (input: string): string => {
+  return input.replace(/[^a-zA-Z0-9_\s-]/g, '');
+};
+
 const LeaderboardModal = ({
   isOpen,
   isSaving,
@@ -31,7 +41,8 @@ const LeaderboardModal = ({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await onSubmit({ name, isHuman });
+    // Trim whitespace from sanitized name before submitting
+    await onSubmit({ name: name.trim(), isHuman });
   };
 
   return (
@@ -52,7 +63,7 @@ const LeaderboardModal = ({
               type="text"
               value={name}
               maxLength={16}
-              onChange={event => setName(event.target.value)}
+              onChange={event => setName(sanitizeName(event.target.value))}
               className="mt-1 w-full rounded bg-gray-800 px-3 py-2 text-gray-100 outline-none ring-1 ring-gray-700 focus:ring-2 focus:ring-purple-400"
               placeholder="Player"
             />
