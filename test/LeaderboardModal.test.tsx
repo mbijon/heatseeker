@@ -166,4 +166,251 @@ describe('LeaderboardModal', () => {
 
     expect(handleSkip).toHaveBeenCalledTimes(1)
   })
+
+  describe('Input Sanitization', () => {
+    it('allows safe alphanumeric characters without modification', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, 'Player123')
+
+      expect(nameInput).toHaveValue('Player123')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'Player123', isHuman: false })
+    })
+
+    it('allows underscores, spaces, and hyphens', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, 'Cool_Gamer-42')
+
+      expect(nameInput).toHaveValue('Cool_Gamer-42')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'Cool_Gamer-42', isHuman: false })
+    })
+
+    it('removes XSS script tags and malicious characters', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, "<script>alert('XSS')</script>")
+
+      // Should strip out <, >, (, ), ', and leave only alphanumeric
+      // Note: Result is truncated to 16 chars due to maxLength
+      expect(nameInput).toHaveValue('scriptalertXSSsc')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'scriptalertXSSsc', isHuman: false })
+    })
+
+    it('removes SQL injection characters', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, "'; DROP TABLE--")
+
+      // Should strip out ' and ; but keep space, hyphen, and alphanumeric
+      expect(nameInput).toHaveValue(' DROP TABLE--')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      // Trimmed on submission
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'DROP TABLE--', isHuman: false })
+    })
+
+    it('removes special characters like @#$%', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, 'Player@#$%Name')
+
+      expect(nameInput).toHaveValue('PlayerName')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'PlayerName', isHuman: false })
+    })
+
+    it('removes accented characters', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, 'José García')
+
+      // Accents removed, space preserved
+      expect(nameInput).toHaveValue('Jos Garca')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'Jos Garca', isHuman: false })
+    })
+
+    it('removes exclamation marks and other punctuation', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, 'Player!!!')
+
+      expect(nameInput).toHaveValue('Player')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'Player', isHuman: false })
+    })
+
+    it('sanitizes input in real-time as user types', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={vi.fn()}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+
+      // Type character by character and verify real-time sanitization
+      await user.type(nameInput, 'Test')
+      expect(nameInput).toHaveValue('Test')
+
+      await user.type(nameInput, '@')
+      expect(nameInput).toHaveValue('Test') // @ should be stripped
+
+      await user.type(nameInput, 'User')
+      expect(nameInput).toHaveValue('TestUser')
+
+      await user.type(nameInput, '!!!')
+      expect(nameInput).toHaveValue('TestUser') // !!! should be stripped
+    })
+
+    it('trims whitespace from final submission', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, '  SpacedName  ')
+
+      // Input shows with spaces
+      expect(nameInput).toHaveValue('  SpacedName  ')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      // Submitted with spaces trimmed
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'SpacedName', isHuman: false })
+    })
+  })
 })
