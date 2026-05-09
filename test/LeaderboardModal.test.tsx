@@ -329,6 +329,38 @@ describe('LeaderboardModal', () => {
       expect(handleSubmit).toHaveBeenCalledWith({ name: 'Jos Garca', isHuman: false })
     })
 
+    it('allows a single period and collapses consecutive periods', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockResolvedValue(undefined)
+
+      render(
+        <LeaderboardModal
+          isOpen
+          isSaving={false}
+          defaultName=""
+          defaultIsHuman={false}
+          onSubmit={handleSubmit}
+          onSkip={vi.fn()}
+        />
+      )
+
+      const nameInput = screen.getByLabelText('Display Name (max 16 characters)')
+      await user.type(nameInput, 'Mr.Robot')
+
+      expect(nameInput).toHaveValue('Mr.Robot')
+
+      await user.clear(nameInput)
+      await user.type(nameInput, 'A...B....C')
+
+      // Each run of 2+ dots collapses to a single dot
+      expect(nameInput).toHaveValue('A.B.C')
+
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      await user.click(saveButton)
+
+      expect(handleSubmit).toHaveBeenCalledWith({ name: 'A.B.C', isHuman: false })
+    })
+
     it('removes exclamation marks and other punctuation', async () => {
       const user = userEvent.setup()
       const handleSubmit = vi.fn().mockResolvedValue(undefined)

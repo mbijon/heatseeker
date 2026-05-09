@@ -10,13 +10,14 @@ interface LeaderboardModalProps {
 }
 
 /**
- * Sanitize player name input to only allow safe characters
- * Allowed: alphanumeric (a-z, A-Z, 0-9), underscores, spaces, and hyphens
+ * Sanitize player name input to only allow safe characters.
+ * Allowed: alphanumeric (a-z, A-Z, 0-9), underscores, spaces, hyphens, and periods.
+ * Consecutive periods are collapsed to a single period (e.g. ".." -> ".").
  * @param input Raw input string
  * @returns Sanitized string with only allowed characters
  */
 const sanitizeName = (input: string): string => {
-  return input.replace(/[^a-zA-Z0-9_\s-]/g, '');
+  return input.replace(/[^a-zA-Z0-9_\s.-]/g, '').replace(/\.{2,}/g, '.');
 };
 
 const LeaderboardModal = ({
