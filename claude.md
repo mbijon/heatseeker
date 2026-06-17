@@ -4,23 +4,6 @@
 
 Heatseeker is a navigation puzzle game designed to follow ARC-AGI-3 specifications. Players must navigate from the bottom-left corner to the top-right corner of a grid while avoiding hidden lava squares, using color-coded heat signatures to detect proximity to danger.
 
-## Game Rules
-
-- **Objective**: Navigate from bottom-left to top-right corner without stepping on lava
-- **Controls**: Arrow keys (desktop) or touch buttons (mobile)
-- **Heat Signatures**: Colors indicate nearby lava count:
-  - Light Grey = 0 adjacent lava squares
-  - Light Yellow = 1 adjacent lava square
-  - Yellow = 2 adjacent lava squares
-  - Bright Yellow = 3 adjacent lava squares
-  - Light Yellow-Orange = 4 adjacent lava squares
-  - Deep Yellow-Orange = 5 adjacent lava squares
-  - Light Orange-Red = 6 adjacent lava squares
-  - Light Red = 7 adjacent lava squares
-  - Neon Pink = 8 adjacent lava squares
-- **Failure**: Stepping on a lava square (turns black) ends the game
-- **Success**: Reaching the green target square completes the level
-
 ## Level Progression
 
 1. **Level 1**: 10x10 grid, 1-5 lava squares
@@ -62,10 +45,12 @@ heatseeker-game/
 ## Setup Instructions
 
 ### Prerequisites
+
 - Node.js (v16 or higher)
 - npm or yarn
 
 ### Installation
+
 ```bash
 # Create new React app
 npx create-react-app heatseeker-game
@@ -82,6 +67,7 @@ npx tailwindcss init -p
 ```
 
 ### Running the Game
+
 ```bash
 npm start
 ```
@@ -91,6 +77,7 @@ npm start
 The game is implemented as a single React component (`HeatSeekerGame`) with the following key features:
 
 ### State Management
+
 - `currentLevel`: Current level (0-9)
 - `playerPos`: Player position {x, y}
 - `lavaSquares`: Set of lava square coordinates
@@ -101,6 +88,7 @@ The game is implemented as a single React component (`HeatSeekerGame`) with the 
 - `gameStarted`: Whether game has been started
 
 ### Core Functions
+
 - `generateLavaSquares()`: Creates random lava placement for current level
 - `calculateHeat(x, y, lavaSet)`: Counts adjacent lava squares
 - `countAdjacentLava(x, y)`: Heat calculation using current game state
@@ -110,6 +98,7 @@ The game is implemented as a single React component (`HeatSeekerGame`) with the 
 - `getHeatColor(count)`: Maps heat count to color class
 
 ### Key Implementation Details
+
 - Starting square immediately shows correct heat signature (no flickering)
 - Mobile controls with D-pad style button layout
 - Keyboard controls with arrow key support
@@ -120,11 +109,13 @@ The game is implemented as a single React component (`HeatSeekerGame`) with the 
 ## Development Notes
 
 ### Recent Bug Fixes
+
 1. **Starting square flickering**: Fixed by using unified heat calculation logic
 2. **Mobile controls not working**: Fixed by ensuring proper function dependencies
 3. **Incorrect starting heat**: Fixed by using same calculation for init and movement
 
 ### Design Decisions
+
 - Heat signature colors follow intuitive temperature gradient (cool → warm)
 - Progressive difficulty scaling across 10 levels
 - Mobile-first design with touch-friendly controls
@@ -134,6 +125,7 @@ The game is implemented as a single React component (`HeatSeekerGame`) with the 
 ## Technical Architecture
 
 ### Color System
+
 ```javascript
 const getHeatColor = (adjacentLavaCount) => {
   switch (adjacentLavaCount) {
@@ -152,6 +144,7 @@ const getHeatColor = (adjacentLavaCount) => {
 ```
 
 ### Grid Rendering
+
 - Dynamic grid sizing based on level requirements
 - Minimum cell size for mobile compatibility
 - CSS Grid layout for precise square alignment
@@ -161,6 +154,7 @@ const getHeatColor = (adjacentLavaCount) => {
 ## Future Enhancements
 
 Potential improvements that could be made:
+
 - Add sound effects for movement and events
 - Implement replay system to review completed levels
 - Add difficulty settings (more/fewer lava squares)
@@ -172,6 +166,7 @@ Potential improvements that could be made:
 ## Testing Considerations
 
 Key areas to test:
+
 - Starting square heat signature accuracy
 - Mobile touch controls responsiveness
 - Keyboard controls across different browsers
